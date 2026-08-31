@@ -1,4 +1,4 @@
-import { ArrowRight, BrainCircuit, FileText, Presentation, Table2, Target } from 'lucide-react';
+import { ArrowRight, BrainCircuit, BriefcaseBusiness, FileText, Presentation, Rocket, Route, Table2, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { NeedCard } from '../components/NeedCard';
 import { contentItems, needEntries, projects } from '../data/content';
@@ -29,29 +29,29 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="path-cabin" aria-label="学习路径：学会、做出、说清">
-          <div className="path-cabin__header">
-            <span>你的学习路径</span>
-            <span className="path-cabin__live"><i /> 3个可验证结果</span>
+        <div className="outcome-panel" aria-label="网站可以帮助你实现的三个目标">
+          <div className="outcome-panel__header">
+            <div><span>你来这里，可以为了</span><strong>把AI变成真实结果</strong></div>
+            <span className="outcome-panel__count"><i />3个方向</span>
           </div>
-          <div className="path-stage path-stage--active">
-            <span className="path-stage__number">01</span>
-            <div><strong>学会</strong><p>用简单例子理解方法</p></div>
-            <span className="path-stage__status">从这里开始</span>
+          <div className="outcome-list">
+            <article className="outcome-item outcome-item--dark">
+              <span className="outcome-item__icon"><BriefcaseBusiness size={22} /></span>
+              <div><h2>提升职场竞争力</h2><p>用AI处理真实办公任务，提升效率与表达。</p></div>
+              <span className="outcome-item__index">01</span>
+            </article>
+            <article className="outcome-item outcome-item--violet">
+              <span className="outcome-item__icon"><Route size={22} /></span>
+              <div><h2>转行AI类岗位</h2><p>学习产品知识，完成项目、作品集与面试准备。</p></div>
+              <span className="outcome-item__index">02</span>
+            </article>
+            <article className="outcome-item outcome-item--orange">
+              <span className="outcome-item__icon"><Rocket size={22} /></span>
+              <div><h2>做AI副业</h2><p>做出AI内容、小工具和可交付成果。</p></div>
+              <span className="outcome-item__index">03</span>
+            </article>
           </div>
-          <div className="path-connector"><span /></div>
-          <div className="path-stage">
-            <span className="path-stage__number">02</span>
-            <div><strong>做出</strong><p>完成模板或AI项目</p></div>
-            <span className="path-stage__status">留下成果</span>
-          </div>
-          <div className="path-connector"><span /></div>
-          <div className="path-stage">
-            <span className="path-stage__number">03</span>
-            <div><strong>说清</strong><p>讲明白你的判断</p></div>
-            <span className="path-stage__status">用于面试</span>
-          </div>
-          <div className="path-cabin__note">今天建议：先完成一个25分钟的办公任务</div>
+          <div className="outcome-panel__footer"><span>从一个目标开始</span><strong>边学边做，留下成果</strong></div>
         </div>
       </section>
 
