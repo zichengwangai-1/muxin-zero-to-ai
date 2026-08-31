@@ -1,0 +1,25 @@
+:root {
+  color-scheme: light;
+  --ink: #111318;
+  --ink-soft: #344054;
+  --muted: #667085;
+  --muted-light: #98a2b3;
+  --canvas: #f4f7fb;
+  --surface: #ffffff;
+  --line: rgba(17, 19, 24, 0.09);
+  --line-strong: rgba(17, 19, 24, 0.14);
+  --blue: #0a84ff;
+  --cyan: #30b8dd;
+  --violet: #7656e8;
+  --green: #248a5b;
+  --orange: #d86b25;
+  --pink: #c64f87;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --shadow-soft: 0 16px 50px rgba(28, 45, 79, 0.08);
+  --shadow-card: 0 8px 30px rgba(29, 41, 57, 0.06);
+  --content: 1180px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
