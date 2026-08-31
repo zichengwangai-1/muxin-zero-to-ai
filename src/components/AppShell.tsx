@@ -11,7 +11,7 @@ export function AppShell() {
           <nav className="desktop-nav" aria-label="主导航">
             <NavLink to="/learn">学习目录</NavLink>
             <NavLink to="/projects">项目实战</NavLink>
-            <NavLink to="/learn?category=interview">面试准备</NavLink>
+            <NavLink to="/aipm">面试准备</NavLink>
           </nav>
           <div className="header-actions">
             <NavLink className="icon-button" to="/learn" aria-label="搜索学习内容">

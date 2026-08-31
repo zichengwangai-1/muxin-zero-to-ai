@@ -9,7 +9,7 @@ const learningModules = [
     title: 'AI产品求职区',
     description: '从看懂AI产品，到能讲项目、答面试，围绕求职结果学习。',
     items: ['技术知识学习', '面试训练', '论文解读', '模型动态'],
-    href: '/learn?category=aipm',
+    href: '/aipm',
     icon: BriefcaseBusiness,
     tone: 'violet',
     action: '开始准备AI产品求职',
