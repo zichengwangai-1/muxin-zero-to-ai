@@ -9,31 +9,20 @@ import {
   Search,
   Sparkles,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { OriginalMarkdown } from '../components/OriginalMarkdown';
+import {
+  loadInterviewCaseQuestions,
+  type InterviewCaseQuestion,
+} from '../data/interview-cases';
 import {
   interviewCategories,
   interviewSources,
-  sourcesForCategory,
   type InterviewCategoryId,
-  type InterviewSource,
 } from '../data/interview';
 
-function SourceCard({ source }: { source: InterviewSource }) {
+function QuestionCaseCard({ question, number }: { question: InterviewCaseQuestion; number: number }) {
   const [open, setOpen] = useState(false);
-  const [original, setOriginal] = useState('');
-  const [loadError, setLoadError] = useState('');
-
-  async function toggleSource() {
-    const nextOpen = !open;
-    setOpen(nextOpen);
-    if (!nextOpen || original) return;
-    try {
-      setOriginal(await source.loadOriginal());
-    } catch {
-      setLoadError('原文暂时无法加载，请刷新页面后重试。');
-    }
-  }
 
   return (
     <article className={`interview-source ${open ? 'is-open' : ''}`}>
@@ -41,25 +30,32 @@ function SourceCard({ source }: { source: InterviewSource }) {
         className="interview-source__toggle"
         type="button"
         aria-expanded={open}
-        onClick={toggleSource}
+        onClick={() => setOpen((value) => !value)}
       >
-        <span className="source-platform">{source.platform}</span>
+        <span className="case-question__index">Q{String(number).padStart(2, '0')}</span>
         <span className="interview-source__title">
-          <strong>{source.title}</strong>
-          <small>{source.preview}</small>
+          <strong>{question.title}</strong>
+          <small>{question.focus}</small>
         </span>
+        <span className="case-question__count">{question.cases.length}个案例</span>
         <ChevronDown size={19} aria-hidden="true" />
       </button>
       {open && (
         <div className="interview-source__content">
           <div className="source-reading-note">
-            <span><Sparkles size={14} />原文重点</span>
-            <p>蓝色标记是原作者强调的重点。数字、观点和经验仍需结合实际岗位判断。</p>
+            <span><Sparkles size={14} />只保留有效回答</span>
+            <p>已剔除作者、日期、点赞、图片数和笔记链接等无效信息。</p>
           </div>
-          {source.note && <div className="source-caution"><CircleAlert size={16} />{source.note}</div>}
-          {!original && !loadError && <div className="source-loading">正在打开完整原文…</div>}
-          {loadError && <div className="source-caution"><CircleAlert size={16} />{loadError}</div>}
-          {original && <OriginalMarkdown content={original} />}
+          {question.cases.map((item, index) => (
+            <section className="case-excerpt" key={item.sourceId}>
+              <header className="case-excerpt__header">
+                <strong>真实案例 {String(index + 1).padStart(2, '0')}</strong>
+                <span>{item.platform}面经</span>
+              </header>
+              {item.note && <div className="source-caution"><CircleAlert size={16} />{item.note}</div>}
+              <OriginalMarkdown content={item.content} />
+            </section>
+          ))}
         </div>
       )}
     </article>
@@ -69,13 +65,30 @@ function SourceCard({ source }: { source: InterviewSource }) {
 export function AipmInterviewPage() {
   const [selectedId, setSelectedId] = useState<InterviewCategoryId>('personal');
   const [query, setQuery] = useState('');
+  const [caseQuestions, setCaseQuestions] = useState<InterviewCaseQuestion[]>([]);
+  const [casesLoading, setCasesLoading] = useState(true);
   const category = interviewCategories.find((item) => item.id === selectedId) ?? interviewCategories[0];
-  const categorySources = useMemo(() => {
-    const sources = sourcesForCategory(selectedId);
+
+  useEffect(() => {
+    let active = true;
+    setCasesLoading(true);
+    loadInterviewCaseQuestions(selectedId).then((questions) => {
+      if (!active) return;
+      setCaseQuestions(questions);
+      setCasesLoading(false);
+    });
+    return () => { active = false; };
+  }, [selectedId]);
+
+  const filteredQuestions = useMemo(() => {
     const keyword = query.trim().toLowerCase();
-    if (!keyword) return sources;
-    return sources.filter((source) => `${source.title}${source.preview}`.toLowerCase().includes(keyword));
-  }, [query, selectedId]);
+    if (!keyword) return caseQuestions;
+    return caseQuestions.filter((question) =>
+      `${question.title}${question.focus}${question.cases.map((item) => item.content).join('')}`
+        .toLowerCase()
+        .includes(keyword),
+    );
+  }, [caseQuestions, query]);
 
   return (
     <main className="interview-hub">
@@ -96,7 +109,7 @@ export function AipmInterviewPage() {
           <ol>
             <li><i>1</i><div><strong>先看高频题</strong><small>知道面试官在考什么</small></div></li>
             <li><i>2</i><div><strong>再记回答骨架</strong><small>用口诀建立提取线索</small></div></li>
-            <li><i>3</i><div><strong>最后读原文</strong><small>补充案例与表达细节</small></div></li>
+            <li><i>3</i><div><strong>最后看案例</strong><small>补充真实回答与表达细节</small></div></li>
           </ol>
         </aside>
       </section>
@@ -156,22 +169,25 @@ export function AipmInterviewPage() {
 
           <section className="source-library" aria-labelledby="source-title">
             <div className="source-library__heading">
-              <div className="content-heading"><Library size={18} /><div><span>尽量完整保留</span><h3 id="source-title">原始笔记与面经</h3></div></div>
-              <span>{categorySources.length}份相关内容</span>
+              <div className="content-heading"><Library size={18} /><div><span>按问题归类</span><h3 id="source-title">面经真实案例面</h3></div></div>
+              <span>{filteredQuestions.length}个真实问题</span>
             </div>
-            <p className="source-library__lead">建议先复述上面的回答骨架，再展开原文。原作者的重点会保留标记，存疑内容会单独提醒。</p>
+            <p className="source-library__lead">每张卡片就是一道面试题。展开后可以对照不同面经中的有效回答，不再需要先理解博主原标题。</p>
             <label className="source-search">
               <Search size={17} />
               <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="在本类原始笔记中搜索"
+                placeholder="搜索真实面试问题"
               />
             </label>
             <div className="interview-source-list">
-              {categorySources.map((source) => <SourceCard key={source.id} source={source} />)}
-              {categorySources.length === 0 && <div className="source-empty">没有找到相关原文，试试更短的关键词。</div>}
+              {casesLoading && <div className="source-loading">正在整理真实面试问题…</div>}
+              {!casesLoading && filteredQuestions.map((question, index) => (
+                <QuestionCaseCard key={question.id} question={question} number={index + 1} />
+              ))}
+              {!casesLoading && filteredQuestions.length === 0 && <div className="source-empty">没有找到相关问题，试试更短的关键词。</div>}
             </div>
           </section>
 
