@@ -3,6 +3,7 @@ import {
   type InterviewCategoryId,
   type InterviewSource,
 } from './interview';
+import { buildProfessionalAnswer, type ProfessionalAnswer } from './interview-answers';
 
 interface QuestionBlueprint {
   id: string;
@@ -24,6 +25,7 @@ export interface InterviewCaseQuestion {
   categoryId: InterviewCategoryId;
   title: string;
   focus: string;
+  answer: ProfessionalAnswer;
   cases: InterviewCaseExcerpt[];
 }
 
@@ -212,6 +214,7 @@ async function buildAllQuestions() {
       categoryId: blueprint.categoryId,
       title: blueprint.title,
       focus: blueprint.focus,
+      answer: buildProfessionalAnswer(blueprint),
       cases: [...(grouped.get(blueprint.id)?.values() ?? [])],
     }))
     .filter((question) => question.cases.length > 0);

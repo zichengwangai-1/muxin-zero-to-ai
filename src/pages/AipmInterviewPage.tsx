@@ -5,9 +5,13 @@ import {
   Check,
   ChevronDown,
   CircleAlert,
+  Crosshair,
+  ExternalLink,
   Library,
+  MessageCircleQuestion,
   Search,
   Sparkles,
+  TriangleAlert,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { OriginalMarkdown } from '../components/OriginalMarkdown';
@@ -42,9 +46,58 @@ function QuestionCaseCard({ question, number }: { question: InterviewCaseQuestio
       </button>
       {open && (
         <div className="interview-source__content">
+          <section className="professional-answer" aria-label={`${question.title}的专业标准答案`}>
+            <div className="answer-focus">
+              <div className="answer-block__title"><Crosshair size={16} /><strong>面试官在考什么</strong></div>
+              <p>{question.answer.examinerFocus}</p>
+            </div>
+
+            <div className="answer-summary">
+              <span>30秒先说结论</span>
+              <p>{question.answer.shortAnswer}</p>
+            </div>
+
+            <div className="answer-deep-dive">
+              <div className="answer-block__title"><BrainCircuit size={16} /><strong>2分钟完整回答</strong></div>
+              <ol>
+                {question.answer.deepDive.map((item, index) => (
+                  <li key={item.label}>
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div><strong>{item.label}</strong><p>{item.detail}</p></div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="answer-memory">
+              <Sparkles size={16} />
+              <div><strong>记忆钩子</strong><p>{question.answer.memoryHook}</p></div>
+            </div>
+
+            <div className="answer-review-grid">
+              <section>
+                <div className="answer-block__title"><MessageCircleQuestion size={16} /><strong>面试官可能追问</strong></div>
+                <ul>{question.answer.followUps.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+              <section className="answer-pitfalls">
+                <div className="answer-block__title"><TriangleAlert size={16} /><strong>容易失分的说法</strong></div>
+                <ul>{question.answer.pitfalls.map((item) => <li key={item}>{item}</li>)}</ul>
+              </section>
+            </div>
+
+            <div className="answer-references">
+              <span>内容校准依据</span>
+              {question.answer.references.map((item) => (
+                <a href={item.url} target="_blank" rel="noreferrer" key={item.url}>
+                  {item.label}<ExternalLink size={12} />
+                </a>
+              ))}
+            </div>
+          </section>
+
           <div className="source-reading-note">
-            <span><Sparkles size={14} />只保留有效回答</span>
-            <p>已剔除作者、日期、点赞、图片数和笔记链接等无效信息。</p>
+            <span><Library size={14} />下面是面经原始案例</span>
+            <p>用于补充真实表达；平台元信息已剔除，未经核验的数据请勿直接照搬。</p>
           </div>
           {question.cases.map((item, index) => (
             <section className="case-excerpt" key={item.sourceId}>

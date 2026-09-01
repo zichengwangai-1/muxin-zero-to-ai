@@ -72,6 +72,34 @@ describe('AI产品求职区', () => {
     expect(new Set(questions.map((question) => question.categoryId)).size).toBe(interviewCategories.length);
   });
 
+  it('每道真实问题都有可追问的专业标准答案', async () => {
+    const questions = await loadAllInterviewCaseQuestions();
+
+    questions.forEach((question) => {
+      expect(question.answer.examinerFocus.length).toBeGreaterThan(20);
+      expect(question.answer.shortAnswer.length).toBeGreaterThan(60);
+      expect(question.answer.deepDive).toHaveLength(4);
+      expect(question.answer.deepDive.every((item) => item.detail.length > 30)).toBe(true);
+      expect(question.answer.followUps.length).toBeGreaterThanOrEqual(2);
+      expect(question.answer.pitfalls.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it('问题卡先展示标准答案再展示真实面经', async () => {
+    renderInterviewPage();
+    fireEvent.click(screen.getByRole('button', { name: /Prompt与AI交互设计/ }));
+
+    const questionToggle = await screen.findByRole('button', { name: /幻觉为什么不能只改Prompt/ });
+    fireEvent.click(questionToggle);
+
+    expect(await screen.findByText('面试官在考什么')).toBeInTheDocument();
+    expect(screen.getByText('30秒先说结论')).toBeInTheDocument();
+    expect(screen.getByText('2分钟完整回答')).toBeInTheDocument();
+    expect(screen.getByText('面试官可能追问')).toBeInTheDocument();
+    expect(screen.getByText('容易失分的说法')).toBeInTheDocument();
+    expect(screen.getByText(/真实案例 01/)).toBeInTheDocument();
+  });
+
   it('清理平台元信息但保留面试回答', () => {
     const cleaned = removePlatformMetadata([
       '### 博主原标题',
