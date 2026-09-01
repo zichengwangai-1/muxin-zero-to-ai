@@ -100,6 +100,37 @@ describe('AI产品求职区', () => {
     expect(screen.getByText(/真实案例 01/)).toBeInTheDocument();
   });
 
+  it('每个真实案例都有小白解释，并明确原文未经核验', async () => {
+    const questions = await loadAllInterviewCaseQuestions();
+    const cases = questions.flatMap((question) => question.cases);
+
+    expect(cases.length).toBeGreaterThan(0);
+    cases.forEach((item) => {
+      expect(item.beginnerExplanation.summary.length).toBeGreaterThan(20);
+      expect(item.beginnerExplanation.logic.length).toBeGreaterThanOrEqual(2);
+    });
+
+    renderInterviewPage();
+    fireEvent.click(screen.getByRole('button', { name: /Prompt与AI交互设计/ }));
+    const questionToggle = await screen.findByRole('button', { name: /幻觉为什么不能只改Prompt/ });
+    fireEvent.click(questionToggle);
+
+    expect(await screen.findAllByText('木辛帮你讲人话')).not.toHaveLength(0);
+    expect(screen.getAllByText('原文摘录 · 未经核验').length).toBeGreaterThan(0);
+  });
+
+  it('明确解释Chunk案例里的经验数字不能照搬', async () => {
+    const questions = await loadAllInterviewCaseQuestions();
+    const chunkCase = questions
+      .flatMap((question) => question.cases)
+      .find((item) => item.content.includes('Chunk没有银弹大小'));
+
+    expect(chunkCase).toBeDefined();
+    expect(chunkCase?.beginnerExplanation.summary).toMatch(/没有统一|不能固定/);
+    expect(chunkCase?.beginnerExplanation.cautions.join('')).toMatch(/300|三百|经验范围|照搬/);
+    expect(chunkCase?.beginnerExplanation.cautions.join('')).toMatch(/召回率.*准确率/);
+  });
+
   it('清理平台元信息但保留面试回答', () => {
     const cleaned = removePlatformMetadata([
       '### 博主原标题',

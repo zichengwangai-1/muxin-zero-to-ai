@@ -3,7 +3,12 @@ import {
   type InterviewCategoryId,
   type InterviewSource,
 } from './interview';
-import { buildProfessionalAnswer, type ProfessionalAnswer } from './interview-answers';
+import {
+  buildBeginnerCaseExplanation,
+  buildProfessionalAnswer,
+  type BeginnerCaseExplanation,
+  type ProfessionalAnswer,
+} from './interview-answers';
 
 interface QuestionBlueprint {
   id: string;
@@ -18,6 +23,7 @@ export interface InterviewCaseExcerpt {
   platform: string;
   content: string;
   note?: string;
+  beginnerExplanation: BeginnerCaseExplanation;
 }
 
 export interface InterviewCaseQuestion {
@@ -28,6 +34,8 @@ export interface InterviewCaseQuestion {
   answer: ProfessionalAnswer;
   cases: InterviewCaseExcerpt[];
 }
+
+type RawInterviewCaseExcerpt = Omit<InterviewCaseExcerpt, 'beginnerExplanation'>;
 
 const blueprints: QuestionBlueprint[] = [
   { id: 'self-intro', categoryId: 'personal', title: '请做一个有岗位匹配度的自我介绍', keywords: ['自我介绍', '介绍一下自己', '个人介绍'], focus: '不是复述简历，而是用经历证明你适合这个岗位。' },
@@ -175,7 +183,7 @@ function sourceFallback(source: InterviewSource) {
 let allQuestionsPromise: Promise<InterviewCaseQuestion[]> | undefined;
 
 async function buildAllQuestions() {
-  const grouped = new Map<string, Map<string, InterviewCaseExcerpt>>();
+  const grouped = new Map<string, Map<string, RawInterviewCaseExcerpt>>();
 
   await Promise.all(interviewSources.map(async (source) => {
     const cleaned = removePlatformMetadata(await source.loadOriginal());
@@ -185,7 +193,7 @@ async function buildAllQuestions() {
     blocks.forEach((block) => {
       const match = pickBlueprint(block, source.categories);
       if (match && match.score > 0) activeBlueprint = match.blueprint;
-      const bySource = grouped.get(activeBlueprint.id) ?? new Map<string, InterviewCaseExcerpt>();
+      const bySource = grouped.get(activeBlueprint.id) ?? new Map<string, RawInterviewCaseExcerpt>();
       const existing = bySource.get(source.id);
       bySource.set(source.id, {
         sourceId: source.id,
@@ -197,7 +205,7 @@ async function buildAllQuestions() {
     });
 
     if (blocks.length === 0 && cleaned) {
-      const bySource = grouped.get(activeBlueprint.id) ?? new Map<string, InterviewCaseExcerpt>();
+      const bySource = grouped.get(activeBlueprint.id) ?? new Map<string, RawInterviewCaseExcerpt>();
       bySource.set(source.id, {
         sourceId: source.id,
         platform: source.platform,
@@ -215,7 +223,10 @@ async function buildAllQuestions() {
       title: blueprint.title,
       focus: blueprint.focus,
       answer: buildProfessionalAnswer(blueprint),
-      cases: [...(grouped.get(blueprint.id)?.values() ?? [])],
+      cases: [...(grouped.get(blueprint.id)?.values() ?? [])].map((item) => ({
+        ...item,
+        beginnerExplanation: buildBeginnerCaseExplanation(blueprint, item.content),
+      })),
     }))
     .filter((question) => question.cases.length > 0);
 }

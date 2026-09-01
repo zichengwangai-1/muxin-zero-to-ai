@@ -103,10 +103,35 @@ function QuestionCaseCard({ question, number }: { question: InterviewCaseQuestio
             <section className="case-excerpt" key={item.sourceId}>
               <header className="case-excerpt__header">
                 <strong>真实案例 {String(index + 1).padStart(2, '0')}</strong>
-                <span>{item.platform}面经</span>
+                <div className="case-excerpt__badges">
+                  <span>原文摘录 · 未经核验</span>
+                  <span>{item.platform}面经</span>
+                </div>
               </header>
               {item.note && <div className="source-caution"><CircleAlert size={16} />{item.note}</div>}
               <OriginalMarkdown content={item.content} />
+              <aside className="beginner-breakdown">
+                <header><Sparkles size={17} /><div><span>小白解释</span><strong>木辛帮你讲人话</strong></div></header>
+                <p className="beginner-breakdown__summary">{item.beginnerExplanation.summary}</p>
+                <section className="beginner-breakdown__logic">
+                  <strong>这段回答是怎么组织的？</strong>
+                  <ol>{item.beginnerExplanation.logic.map((step) => <li key={step}>{step}</li>)}</ol>
+                </section>
+                {item.beginnerExplanation.glossary.length > 0 && (
+                  <section className="beginner-breakdown__glossary">
+                    <strong>先把这些词弄懂</strong>
+                    <dl>
+                      {item.beginnerExplanation.glossary.map((item) => (
+                        <div key={item.term}><dt>{item.term}</dt><dd>{item.meaning}</dd></div>
+                      ))}
+                    </dl>
+                  </section>
+                )}
+                <section className="beginner-breakdown__caution">
+                  <strong>别直接照搬</strong>
+                  {item.beginnerExplanation.cautions.map((caution) => <p key={caution}>{caution}</p>)}
+                </section>
+              </aside>
             </section>
           ))}
         </div>

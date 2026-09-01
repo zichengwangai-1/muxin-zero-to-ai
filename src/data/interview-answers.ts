@@ -10,6 +10,13 @@ export interface ProfessionalAnswer {
   references: Array<{ label: string; url: string }>;
 }
 
+export interface BeginnerCaseExplanation {
+  summary: string;
+  logic: string[];
+  cautions: string[];
+  glossary: Array<{ term: string; meaning: string }>;
+}
+
 interface AnswerInput {
   id: string;
   categoryId: InterviewCategoryId;
@@ -180,6 +187,102 @@ const guidance: Record<string, FourPoints> = {
   monitoring: ['线上监控不仅看报错，还要看低评分、重复重试、人工接管、异常工具调用和用户纠正。', '每个事件关联模型、Prompt、知识、工具版本及完整轨迹，便于快速定位退化来源。', '按影响、频率和可恢复性分级，重大风险立即降级或回滚，普通问题进入修复队列。', '审核后的新Bad Case补充标签和期望行为，进入固定回归集并验证修复无副作用。'],
   privacy: ['遵循目的限定和最少数据原则，只收集完成任务确实需要的信息并明确告知用途。', '敏感数据在采集、传输、存储、检索和日志各环节做权限、加密、脱敏与保留期限控制。', '用户应能查看、更正、删除和撤回授权；模型训练或跨境处理需要单独确认合规基础。', '对供应商、插件和Agent工具做数据流审查，保留审计记录并定期开展泄漏和越权测试。'],
 };
+
+const beginnerLogicByCategory: Record<InterviewCategoryId, [string, string, string]> = {
+  personal: ['先直接回答面试官的问题，不绕圈。', '再拿一段真实经历证明，不只说“我觉得自己可以”。', '最后说明这段经历和应聘岗位有什么关系。'],
+  project: ['先交代用户遇到了什么麻烦，原来的做法哪里不好。', '再说自己做了哪个决定、为什么这样做，而不是只报功能名称。', '最后用数据或用户反馈说明结果；没有数据就如实说还在验证。'],
+  concepts: ['先用一句普通话解释这个名词是什么。', '再举一个使用场景，说明它能解决什么问题。', '最后讲清它什么时候不好用，避免把一种技术说成万能答案。'],
+  sense: ['先判断用户是不是真的有这个问题。', '再比较普通方案和AI方案，看AI有没有带来明显好处。', '最后用一个小实验验证，不是一上来就做完整产品。'],
+  agent: ['先说明这个任务为什么需要Agent自己判断下一步。', '再讲Agent会用哪些工具、每一步怎样接起来。', '最后补上确认、失败处理和人工接手，防止Agent乱操作。'],
+  rag: ['先确认系统应该从哪些资料里找答案。', '再说明资料怎样切开、找回和排序。', '最后检查找来的资料对不对，以及回答有没有忠于资料。'],
+  prompt: ['先把想让模型完成的任务说清楚。', '再补充必要的背景、例子和输出格式。', '最后用固定题目反复测试；如果错误来自资料或工具，就不能只改Prompt。'],
+  evaluation: ['先定义什么样的回答算好，什么错误不能接受。', '再准备一批接近真实用户的问题，用同一把尺子评分。', '最后把新发现的错误加入题库，确保下次修改没有把旧问题改回来。'],
+  model: ['先写清业务最在意什么，例如回答质量、速度、费用或隐私。', '再让不同模型回答同一批真实问题，不只看网上排行榜。', '最后根据实际结果做选择，必要时让简单任务和复杂任务使用不同模型。'],
+  safety: ['先判断出错后会造成多大损失。', '再限制模型能看到什么、能执行什么，高风险操作让用户确认。', '最后保留记录和人工接手机制，出现问题后可以找到原因。'],
+};
+
+const beginnerSummaryByQuestion: Record<string, string> = {
+  'rag-chunk-query': '这段回答想说：资料不能随便按固定长度剪开。短问答可以切得小一些，长文要尽量保留完整段落，最终仍要用真实问题测试。',
+  'rag-retrieval': '这段回答想说：只用一种搜索方式容易漏资料，所以可以先用几种方法多找一些，再把最相关的排到前面。',
+  'rag-embedding': '这段回答想说：向量模型、向量库和返回数量都没有统一答案，要看资料规模、权限要求和真实搜索效果。',
+  'rag-strategy': '这段回答想说：RAG不是简单地“接一个知识库”，而是一条从整理资料、搜索资料到根据证据回答的完整流程。',
+  'rag-debug': '这段回答想说：RAG答错时要一层一层查，先看资料有没有，再看有没有找对，最后才检查模型怎样回答。',
+  'prompt-hallucination': '这段回答想说：模型胡说不一定是提示词写坏了，也可能是资料错误、没搜到证据，或者外部工具返回了错误结果。',
+  'prompt-optimize': '这段回答想说：优化Prompt不能凭感觉乱改。先收集失败例子，再一次只改一个地方，才知道到底什么有效。',
+  'prompt-logic': '这段回答想说：写Prompt就是把任务交代清楚，包括要做什么、参考什么、不能做什么，以及结果用什么格式给你。',
+  'eval-system': '这段回答想说：做AI评测就是先规定“什么算答得好”，再用一批真实问题统一考试，最后根据错题继续修改产品。',
+  'eval-dataset': '这段回答想说：评测题库既要有日常高频问题，也要有边界问题、危险问题和产品以前答错过的问题。',
+  'eval-rubric': '这段回答想说：不要笼统地评价“挺好”。要把正确、相关、安全等要求写成具体评分规则，让不同人打分时标准接近。',
+  'eval-agent': '这段回答想说：判断Agent好不好，既要看任务最后有没有完成，也要看中间有没有乱用工具、绕远路或越权。',
+  'agent-design': '这段回答想说：先判断任务是否真的需要Agent，再设计它怎么计划、用工具和停下来，同时管住它的操作权限。',
+  'agent-architecture': '这段回答想说：Agent需要理解目标、安排步骤、调用工具、记住当前进度，还要记录过程方便发现错误。',
+  'agent-boundary': '这段回答想说：Agent不是越自动越好。风险低的事情可以自动做，转账、删除、发布等高风险动作必须让用户确认。',
+  'agent-failure': '这段回答想说：Agent失败后不能一直重复尝试，要限制时间和次数，必要时换简单流程或交给人工。',
+  'model-selection': '这段回答想说：选模型要拿自己的真实业务问题来考试，同时比较质量、速度、费用和隐私，不能只看排行榜。',
+  'model-cost': '这段回答想说：模型太贵时先找钱花在哪里，再减少重复调用、缩短无用内容，并让简单任务使用更便宜的模型。',
+  hallucination: '这段回答想说：AI可能会一本正经地给出错误内容。产品需要提供可靠资料、要求引用，并在没有证据时允许它说不知道。',
+  guardrail: '这段回答想说：安全措施不能只有敏感词过滤，还要限制数据权限和执行动作，高风险操作需要确认并保留记录。',
+  privacy: '这段回答想说：只收集完成任务真正需要的数据，让用户知道用途，并允许用户查看、更正和删除自己的信息。',
+};
+
+const glossary = [
+  { pattern: /\bRAG\b/i, term: 'RAG', meaning: '让AI先从指定资料里找内容，再根据找到的内容回答。' },
+  { pattern: /\bChunk\b/i, term: 'Chunk', meaning: '把一份长资料切成的小段。系统搜索时，实际找的是这些小段。' },
+  { pattern: /召回/, term: '召回', meaning: '用户提问后，系统先找出一批可能相关的资料。' },
+  { pattern: /召回精度|Precision/i, term: '召回精度', meaning: '找回来的资料中，有多少是真的和问题相关。' },
+  { pattern: /Embedding/i, term: 'Embedding', meaning: '把文字变成一串数字，方便系统比较两段文字的意思是否接近。' },
+  { pattern: /Rerank/i, term: 'Rerank', meaning: '把初步找回的资料重新排一次顺序，让更相关的排在前面。' },
+  { pattern: /Top\s*K/i, term: 'Top K', meaning: '搜索后先取排名最靠前的K条资料。K就是取多少条。' },
+  { pattern: /\bAgent\b/i, term: 'Agent', meaning: '能根据目标决定下一步，并调用工具完成任务的AI系统。' },
+  { pattern: /\bPrompt\b/i, term: 'Prompt', meaning: '你交给AI的任务说明，包括背景、要求、限制和输出格式。' },
+  { pattern: /\bToken\b/i, term: 'Token', meaning: '模型读取文字时使用的计量单位，不完全等同于一个汉字或一个单词。' },
+  { pattern: /Schema/i, term: 'Schema', meaning: '一套固定的数据格式规则，规定必须有哪些字段、每个字段怎么写。' },
+  { pattern: /P95/i, term: 'P95', meaning: '把100次请求从快到慢排序，第95次所用的时间，用来看较慢用户的体验。' },
+  { pattern: /A\/?B\s*测试/i, term: 'A/B测试', meaning: '把用户分成两组使用不同方案，再比较结果有没有明显差异。' },
+];
+
+export function buildBeginnerCaseExplanation(input: AnswerInput, content: string): BeginnerCaseExplanation {
+  const isChunkExample = /Chunk.*(?:大小|银弹)|三百到五百字|八百到一千两百字/i.test(content);
+  const summary = isChunkExample
+    ? '这段话真正想说的是：Chunk大小不能固定。短小、独立的问答可以切得短一些；需要上下文的长文要保留完整段落；商品资料则适合按标题、属性、评价等字段分开。'
+    : beginnerSummaryByQuestion[input.id]
+      ?? `这段回答主要在说明：${input.focus} 阅读时先抓住这个判断，再看作者用了什么例子来支持它。`;
+
+  const cautions: string[] = [];
+  if (isChunkExample) {
+    cautions.push('原文中的300—500字和800—1200字只是作者给出的经验范围，不是行业标准，也不应该直接背进面试答案。实际大小要用自己的资料和问题做检索测试。');
+  } else if (/\d|一百|两百|三百|五百|八百|一千|百分|倍|[三四五六七八九十]层|[三四五六七八九十]步/.test(content)) {
+    cautions.push('这段话出现了数字或分层数量。先把它当作作者的案例或记忆方法，除非原文给出实验依据，否则不要说成固定标准。');
+  }
+  if (/召回精度/.test(content)) {
+    cautions.push('原文把“召回精度”混在一起说，不够严谨。更常见的做法是分开看：召回率关注该找的资料有没有找全，准确率关注找回来的资料有多少真的相关。');
+  }
+  if (/密等控制/.test(content)) {
+    cautions.push('原文里的“密等控制”应为“幂等控制”，意思是同一个操作重复执行时，不应产生重复扣款、重复下单等副作用。');
+  }
+  if (/不要用我的场景/.test(content)) {
+    cautions.push('“不要用我的场景”很可能是口述转文字造成的错误。这里真正想表达的是：工具说明里要写清哪些情况不应该调用这个工具。');
+  }
+  if (/像|好比|类似于|类比|开盲盒|牛排|零食|乐高|实习生|重卡|电瓶车/.test(content)) {
+    cautions.push('文中的比喻只是为了好记，面试时要先说清真实原理，再用比喻帮助理解，不能只背比喻。');
+  }
+  if (/一定|绝对|唯一|必须|千万不要|根本不能/.test(content)) {
+    cautions.push('原文有比较强的说法。真实产品通常要看业务场景和风险，不要把“通常这样做”说成“任何时候都必须这样做”。');
+  }
+  if (cautions.length === 0) {
+    cautions.push('这是一段个人面经，不是标准答案。可以学习它的表达顺序，但项目数据、公司案例和结论都要换成你真正了解的内容。');
+  }
+
+  return {
+    summary,
+    logic: beginnerLogicByCategory[input.categoryId],
+    cautions: cautions.slice(0, 3),
+    glossary: glossary
+      .filter((item) => item.pattern.test(content))
+      .slice(0, 4)
+      .map(({ term, meaning }) => ({ term, meaning })),
+  };
+}
 
 function ensureDetail(detail: string) {
   return detail.length > 30 ? detail : `${detail}，并补充判断依据、业务取舍和可以验证的结果。`;
