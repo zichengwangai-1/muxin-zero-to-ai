@@ -39,34 +39,109 @@ function renderInline(text: string, resolveLink?: (href: string) => string): Rea
   });
 }
 
+function tableCells(line: string) {
+  const escapedPipe = '\uE000';
+  return line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .replace(/\\\|/g, escapedPipe)
+    .split('|')
+    .map((cell) => cell.replaceAll(escapedPipe, '|').trim());
+}
+
+function isTableDivider(line: string) {
+  const cells = tableCells(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+}
+
+function tableAlignment(divider: string) {
+  return tableCells(divider).map((cell) => {
+    if (cell.startsWith(':') && cell.endsWith(':')) return 'center';
+    if (cell.endsWith(':')) return 'right';
+    return 'left';
+  });
+}
+
 export function OriginalMarkdown({ content, resolveLink, resolveImage }: OriginalMarkdownProps) {
+  const lines = content.split('\n');
+  const blocks: ReactNode[] = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].trim();
+    const nextLine = lines[index + 1]?.trim() ?? '';
+
+    if (line.startsWith('|') && nextLine.startsWith('|') && isTableDivider(nextLine)) {
+      const headers = tableCells(line);
+      const alignments = tableAlignment(nextLine);
+      const rows: string[][] = [];
+      let rowIndex = index + 2;
+      while (rowIndex < lines.length && lines[rowIndex].trim().startsWith('|')) {
+        rows.push(tableCells(lines[rowIndex]));
+        rowIndex += 1;
+      }
+
+      blocks.push(
+        <div className="source-table-wrap" key={`table-${index}`}>
+          <table className="source-table">
+            <thead>
+              <tr>
+                {headers.map((cell, cellIndex) => (
+                  <th className={`source-table__${alignments[cellIndex] ?? 'left'}`} key={cellIndex} scope="col">
+                    {renderInline(cell, resolveLink)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, bodyRowIndex) => (
+                <tr key={bodyRowIndex}>
+                  {headers.map((_, cellIndex) => (
+                    <td className={`source-table__${alignments[cellIndex] ?? 'left'}`} key={cellIndex}>
+                      {renderInline(row[cellIndex] ?? '', resolveLink)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      index = rowIndex - 1;
+      continue;
+    }
+
+    if (!line || line === '---') {
+      blocks.push(<div className="source-space" key={index} aria-hidden="true" />);
+      continue;
+    }
+
+    const image = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (image) {
+      const source = resolveImage?.(image[2]);
+      if (source) blocks.push(<img alt={image[1]} className="source-image" key={index} src={source} />);
+      continue;
+    }
+
+    if (line.startsWith('#### ')) blocks.push(<h5 key={index}>{renderInline(line.slice(5), resolveLink)}</h5>);
+    else if (line.startsWith('### ')) blocks.push(<h4 key={index}>{renderInline(line.slice(4), resolveLink)}</h4>);
+    else if (line.startsWith('## ')) blocks.push(<h3 key={index}>{renderInline(line.slice(3), resolveLink)}</h3>);
+    else if (line.startsWith('# ')) blocks.push(<h2 key={index}>{renderInline(line.slice(2), resolveLink)}</h2>);
+    else if (line.startsWith('> ')) blocks.push(<blockquote key={index}>{renderInline(line.slice(2), resolveLink)}</blockquote>);
+    else if (/^【(?:问题|结论|背景|思路)/.test(line)) {
+      blocks.push(<p className="source-callout" key={index}>{renderInline(line, resolveLink)}</p>);
+    } else if (/^[-*]\s+/.test(line)) {
+      blocks.push(<p className="source-list-item" key={index}><span aria-hidden="true" />{renderInline(line.replace(/^[-*]\s+/, ''), resolveLink)}</p>);
+    } else if (/^\d+[.、]\s*/.test(line)) {
+      blocks.push(<p className="source-number-item" key={index}>{renderInline(line, resolveLink)}</p>);
+    } else {
+      blocks.push(<p key={index}>{renderInline(line, resolveLink)}</p>);
+    }
+  }
+
   return (
     <div className="original-markdown">
-      {content.split('\n').map((rawLine, index) => {
-        const line = rawLine.trim();
-        if (!line || line === '---') return <div className="source-space" key={index} aria-hidden="true" />;
-        const image = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        if (image) {
-          const source = resolveImage?.(image[2]);
-          return source ? <img alt={image[1]} className="source-image" key={index} src={source} /> : null;
-        }
-        if (line.startsWith('#### ')) return <h5 key={index}>{renderInline(line.slice(5), resolveLink)}</h5>;
-        if (line.startsWith('### ')) return <h4 key={index}>{renderInline(line.slice(4), resolveLink)}</h4>;
-        if (line.startsWith('## ')) return <h3 key={index}>{renderInline(line.slice(3), resolveLink)}</h3>;
-        if (line.startsWith('# ')) return <h2 key={index}>{renderInline(line.slice(2), resolveLink)}</h2>;
-        if (line.startsWith('> ')) return <blockquote key={index}>{renderInline(line.slice(2), resolveLink)}</blockquote>;
-        if (/^【(?:问题|结论|背景|思路)/.test(line)) {
-          return <p className="source-callout" key={index}>{renderInline(line, resolveLink)}</p>;
-        }
-        if (/^[-*]\s+/.test(line)) {
-          return <p className="source-list-item" key={index}><span aria-hidden="true" />{renderInline(line.replace(/^[-*]\s+/, ''), resolveLink)}</p>;
-        }
-        if (/^\d+[.、]\s*/.test(line)) {
-          return <p className="source-number-item" key={index}>{renderInline(line, resolveLink)}</p>;
-        }
-        if (line.startsWith('|')) return <p className="source-table-row" key={index}>{renderInline(line, resolveLink)}</p>;
-        return <p key={index}>{renderInline(line, resolveLink)}</p>;
-      })}
+      {blocks}
     </div>
   );
 }

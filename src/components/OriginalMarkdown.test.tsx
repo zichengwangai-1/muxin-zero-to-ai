@@ -31,4 +31,20 @@ describe('OriginalMarkdown', () => {
       '/content/assets/transformer.png',
     );
   });
+
+  it('把连续的 Markdown 表格转换成可读的语义表格', () => {
+    render(
+      <OriginalMarkdown
+        content={'| 术语 | 是什么 | PM 为什么关心 |\n| --- | :---: | ---: |\n| **LLM** | 大语言模型 | 决定产品能力边界 |\n| RAG | 检索增强生成 | 详见 [RAG](rag.md) |'}
+        resolveLink={(href) => `/aipm/${href.replace(/\.md$/, '')}`}
+      />,
+    );
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader')).toHaveLength(3);
+    expect(screen.getByRole('columnheader', { name: '术语' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'LLM' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'RAG' })).toHaveAttribute('href', '/aipm/rag');
+    expect(screen.queryByText(/:---:/)).not.toBeInTheDocument();
+  });
 });
