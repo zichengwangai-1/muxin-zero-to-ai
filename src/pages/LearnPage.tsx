@@ -1,121 +1,123 @@
-import { ArrowRight, BookOpenText, FolderOpen, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpenText, FolderOpen, Search } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ContentCard } from '../components/ContentCard';
-import { FilterBar } from '../components/FilterBar';
 import { aipmModules } from '../data/aipm-content';
-import { contentItems } from '../data/content';
-import { filterContent, type ContentFilter } from '../lib/content';
-import type { ContentCategory } from '../types/content';
 
-const validCategories = new Set<ContentFilter>(['all', 'intro', 'office', 'aipm', 'interview']);
+function containsKeyword(source: string, keyword: string) {
+  const normalizedSource = source.toLocaleLowerCase('zh-CN');
+  return keyword
+    .toLocaleLowerCase('zh-CN')
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((part) => normalizedSource.includes(part));
+}
+
+function articleRelevance(
+  article: { title: string; summary: string; groupName: string },
+  keyword: string,
+) {
+  const query = keyword.toLocaleLowerCase('zh-CN');
+  const title = article.title.toLocaleLowerCase('zh-CN');
+  if (title === query || title.includes(`什么是 ${query}`) || title.includes(`${query}是什么`)) return 0;
+  if (title.startsWith(query)) return 1;
+  if (containsKeyword(article.title, keyword)) return 2;
+  if (containsKeyword(`${article.groupName} ${article.summary}`, keyword)) return 3;
+  return 4;
+}
 
 export function LearnPage() {
-  const [params, setParams] = useSearchParams();
-  const rawCategory = params.get('category') ?? 'all';
-  const category: ContentFilter = validCategories.has(rawCategory as ContentFilter)
-    ? (rawCategory as ContentFilter)
-    : 'all';
-  const query = params.get('q') ?? '';
-  const results = filterContent(contentItems, query, category);
-  const keyword = query.trim().toLocaleLowerCase('zh-CN');
-  const canShowAipm = category === 'all' || category === 'aipm' || category === 'interview';
-  const allowedModules = aipmModules.filter((module) => (
-    category !== 'interview' || module.id === '04-interview'
-  ));
-  const moduleResults = keyword && canShowAipm
-    ? allowedModules.filter((module) => (
-      `${module.name} ${module.description} ${module.outcome}`.toLocaleLowerCase('zh-CN').includes(keyword)
+  const [params] = useSearchParams();
+  const query = params.get('q')?.trim() ?? '';
+  const moduleResults = query
+    ? aipmModules.filter((module) => containsKeyword(
+      `${module.name} ${module.description} ${module.outcome}`,
+      query,
     ))
     : [];
-  const articleResults = keyword && canShowAipm
-    ? allowedModules
+  const articleResults = query
+    ? aipmModules
       .flatMap((module) => module.articles)
-      .filter((article) => (
-        `${article.title} ${article.summary} ${article.content}`.toLocaleLowerCase('zh-CN').includes(keyword)
+      .filter((article) => containsKeyword(
+        `${article.title} ${article.summary} ${article.groupName} ${article.content}`,
+        query,
       ))
-      .slice(0, 30)
+      .sort((a, b) => articleRelevance(a, query) - articleRelevance(b, query))
+      .slice(0, 40)
     : [];
-  const resultCount = results.length + moduleResults.length + articleResults.length;
-
-  function updateParams(nextCategory: ContentFilter, nextQuery: string) {
-    const next = new URLSearchParams();
-    if (nextCategory !== 'all') next.set('category', nextCategory);
-    if (nextQuery.trim()) next.set('q', nextQuery);
-    setParams(next, { replace: true });
-  }
-
-  function clearSearch() {
-    updateParams(category, '');
-  }
-
-  const categoryName: Record<ContentFilter, string> = {
-    all: '全部学习内容',
-    intro: 'AI入门',
-    office: 'AI办公提效',
-    aipm: 'AI产品经理',
-    interview: '作品集与面试',
-  };
+  const resultCount = moduleResults.length + articleResults.length;
 
   return (
-    <main className="directory-page section-shell">
-      <header className="page-hero">
-        <span className="section-kicker">统一学习目录</span>
-        <h1>今天想完成什么？</h1>
-        <p>不用先学完整套课程。选择一个当前任务，完成后再沿着关联内容继续。</p>
+    <main className="aipm-search-page section-shell">
+      <Link className="aipm-search-page__back" to="/aipm">
+        <ArrowLeft size={16} /> 返回 AI 产品求职区
+      </Link>
+
+      <header className="aipm-search-page__hero">
+        <span className="section-kicker">只搜索最新的 AI 产品求职内容</span>
+        <h1>AI产品求职区搜索结果</h1>
+        {query ? (
+          <p>关键词“{query}”找到 <strong>{resultCount}</strong> 项相关内容。</p>
+        ) : (
+          <p>请在页面顶部输入想了解的知识、技能或面试问题。</p>
+        )}
       </header>
 
-      <FilterBar
-        category={category}
-        query={query}
-        onCategoryChange={(next) => updateParams(next, query)}
-        onQueryChange={(next) => updateParams(category, next)}
-      />
+      {query && resultCount > 0 && (
+        <div className="aipm-search-groups">
+          {moduleResults.length > 0 && (
+            <section className="aipm-search-results" aria-labelledby="module-results-title">
+              <header>
+                <span>学习入口</span>
+                <h2 id="module-results-title">相关目录</h2>
+                <em>{moduleResults.length}项</em>
+              </header>
+              <div>
+                {moduleResults.map((module) => (
+                  <Link className="aipm-search-result" key={module.id} to={`/aipm/${module.id}`}>
+                    <span className="aipm-search-result__icon"><FolderOpen size={18} /></span>
+                    <span><small>内容板块</small><strong>{module.name}</strong><p>{module.description}</p></span>
+                    <em>{module.articles.length}篇</em><ArrowRight size={17} />
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
-      <div className="results-heading">
-        <div><strong>{categoryName[category]}</strong><span>{resultCount}项内容</span></div>
-        <p>{keyword ? '已同时搜索任务、专业目录和完整文章' : '所有内容都标明用时和最终产出'}</p>
-      </div>
-
-      {results.length > 0 && (
-        <div className="content-grid">
-          {results.map((item) => <ContentCard item={item} key={item.id} />)}
+          {articleResults.length > 0 && (
+            <section className="aipm-search-results" aria-labelledby="article-results-title">
+              <header>
+                <span>完整内容</span>
+                <h2 id="article-results-title">相关文章</h2>
+                <em>{articleResults.length}项</em>
+              </header>
+              <div>
+                {articleResults.map((article) => (
+                  <Link className="aipm-search-result" key={article.id} to={`/aipm/${article.moduleId}/${article.articlePath}`}>
+                    <span className="aipm-search-result__icon"><BookOpenText size={18} /></span>
+                    <span><small>{article.groupName}</small><strong>{article.title}</strong><p>{article.summary}</p></span>
+                    <em>约{article.duration}分钟</em><ArrowRight size={17} />
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
 
-      {(moduleResults.length > 0 || articleResults.length > 0) && (
-        <section className="aipm-search-results" aria-labelledby="aipm-search-title">
-          <header><span>AI 产品求职区</span><h2 id="aipm-search-title">相关目录与文章</h2></header>
-          <div>
-            {moduleResults.map((module) => (
-              <Link className="aipm-search-result" key={module.id} to={`/aipm/${module.id}`}>
-                <span className="aipm-search-result__icon"><FolderOpen size={18} /></span>
-                <span><small>内容板块</small><strong>{module.name}</strong><p>{module.description}</p></span>
-                <em>{module.articles.length}篇</em><ArrowRight size={17} />
-              </Link>
-            ))}
-            {articleResults.map((article) => (
-              <Link className="aipm-search-result" key={article.id} to={`/aipm/${article.moduleId}/${article.articlePath}`}>
-                <span className="aipm-search-result__icon"><BookOpenText size={18} /></span>
-                <span><small>{article.groupName}</small><strong>{article.title}</strong><p>{article.summary}</p></span>
-                <em>约{article.duration}分钟</em><ArrowRight size={17} />
-              </Link>
-            ))}
-          </div>
-        </section>
+      {!query && (
+        <div className="aipm-search-empty">
+          <Search size={22} />
+          <h2>输入关键词开始搜索</h2>
+          <p>搜索范围包括六大专业目录及其中的完整文章。</p>
+        </div>
       )}
 
-      {resultCount === 0 && (
-        <div className="empty-state">
+      {query && resultCount === 0 && (
+        <div className="aipm-search-empty">
           <span className="empty-state__mark">?</span>
           <h2>没有找到匹配内容</h2>
-          <p>试试更短的关键词，例如“会议”“RAG”或“面试”。</p>
-          <button className="button button--quiet" type="button" onClick={clearSearch}>
-            <RotateCcw size={16} /> 清除搜索
-          </button>
+          <p>试试更短的关键词，例如“RAG”“评测”或“面试”。</p>
         </div>
       )}
     </main>
   );
 }
-
-export const categoryIds: ContentCategory[] = ['intro', 'office', 'aipm', 'interview'];

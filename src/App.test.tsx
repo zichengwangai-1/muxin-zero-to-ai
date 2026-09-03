@@ -48,7 +48,7 @@ describe('首页', () => {
     expect(screen.queryByText('今天只做一件事')).not.toBeInTheDocument();
   });
 
-  it('页头只保留一个可提交的内容搜索框', () => {
+  it('空搜索留在首页，有关键词时只搜索 AI 产品求职区', () => {
     render(
       <MemoryRouter>
         <App />
@@ -60,10 +60,14 @@ describe('首页', () => {
     expect(within(header).queryByText('从目录开始')).not.toBeInTheDocument();
     expect(within(header).getAllByRole('searchbox')).toHaveLength(1);
 
+    fireEvent.click(within(header).getByRole('button', { name: '搜索' }));
+    expect(screen.getByRole('heading', { name: '几周内学好AI，而不是几个月' })).toBeInTheDocument();
+
     fireEvent.change(within(header).getByRole('searchbox'), { target: { value: 'RAG' } });
     fireEvent.click(within(header).getByRole('button', { name: '搜索' }));
 
-    expect(screen.getByRole('heading', { name: '今天想完成什么？' })).toBeInTheDocument();
-    expect(screen.getByText('小白也能理解RAG：先查资料，再回答')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'AI产品求职区搜索结果' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /什么是 RAG:检索增强生成入门/ })).toBeInTheDocument();
+    expect(screen.queryByText('小白也能理解RAG：先查资料，再回答')).not.toBeInTheDocument();
   });
 });

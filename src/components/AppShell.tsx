@@ -16,7 +16,8 @@ export function AppShell() {
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const keyword = query.trim();
-    navigate(keyword ? `/learn?q=${encodeURIComponent(keyword)}` : '/learn');
+    if (!keyword) return;
+    navigate(`/learn?q=${encodeURIComponent(keyword)}`);
   }
 
   return (
@@ -43,7 +44,7 @@ export function AppShell() {
           <BrandMark />
           <p>从真实任务开始，少一点术语，多一个能用的结果。</p>
           <div className="footer-links">
-            <NavLink to="/learn">学习目录</NavLink>
+            <NavLink to="/aipm">AI产品求职区</NavLink>
             <NavLink to="/projects">项目实战</NavLink>
           </div>
         </div>
