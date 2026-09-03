@@ -1,8 +1,6 @@
-import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, FileText, Presentation, Rocket, Route, Table2, Target } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Rocket, Route, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { contentItems, projects } from '../data/content';
-
-const officePicks = contentItems.filter((item) => item.category === 'office').slice(0, 3);
+import { aipmModules } from '../data/aipm-content';
 
 const learningModules = [
   {
@@ -132,50 +130,39 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="showcase-section section-shell">
-        <div className="section-heading section-heading--compact">
-          <div><span className="section-kicker">先让AI真的帮上忙</span><h2>从日常办公中最常见的任务开始</h2></div>
-          <Link className="text-link" to="/learn?category=office">查看12个办公任务 <ArrowRight size={16} /></Link>
+      <section className="value-proof section-shell" aria-labelledby="value-proof-title">
+        <div className="value-proof__copy">
+          <span className="section-kicker">把时间用在真正有结果的地方</span>
+          <h2 id="value-proof-title">省下80%的资料搜集时间</h2>
+          <p>不用在几十个平台之间反复筛选。这里先按求职目标整理内容，再告诉你哪些必须会、哪些可以以后再学。</p>
+          <div className="value-proof__logic" aria-label="目标导向学习方法">
+            <div><i>01</i><span><strong>先确定目的</strong><small>面试、转行或完成真实项目</small></span></div>
+            <div><i>02</i><span><strong>只学关键内容</strong><small>减少重复、过时和用不到的信息</small></span></div>
+            <div><i>03</i><span><strong>转成可用结果</strong><small>能理解、能复述，也能在面试中回答</small></span></div>
+          </div>
+          <Link className="value-proof__action" to="/aipm">进入 AI 产品求职区 <ArrowRight size={17} /></Link>
         </div>
-        <div className="office-grid">
-          {officePicks.map((item, index) => {
-            const icons = [FileText, Table2, Presentation];
-            const Icon = icons[index];
-            return (
-              <Link className="office-card" to={`/content/${item.id}`} key={item.id}>
-                <div className={`office-card__icon accent-${item.accent}`}><Icon size={23} /></div>
-                <div className="office-card__body"><span>{item.duration} · {item.level}</span><h3>{item.title}</h3><p>{item.summary}</p></div>
-                <div className="office-card__output"><small>你会得到</small><strong>{item.output}</strong></div>
+
+        <div className="home-directory" aria-label="AI产品求职区目录">
+          <div className="home-directory__header">
+            <div><span>AI 产品求职区</span><strong>完整学习地图</strong></div>
+            <small>6个专业目录</small>
+          </div>
+          <div className="home-directory__list">
+            {aipmModules.map((module) => (
+              <Link
+                data-testid="home-aipm-directory-link"
+                key={module.id}
+                to={`/aipm/${module.id}`}
+              >
+                <i>{module.index}</i>
+                <span><strong>{module.name}</strong><small>{module.description}</small></span>
+                <em>{module.articles.length}篇</em>
+                <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </section>
-
-      <section className="project-section section-shell" aria-labelledby="projects-title">
-        <div className="project-section__intro">
-          <span className="section-kicker">想转行AI产品经理</span>
-          <h2 id="projects-title">不只说“我学过”，而是拿出真正做过的项目</h2>
-          <p>两个项目从用户问题开始，完整走到评测、作品集和面试表达。第一个跟着做，第二个由你做关键决策。</p>
-          <Link className="button button--light" to="/projects">查看项目路径 <ArrowRight size={17} /></Link>
-        </div>
-        <div className="project-stack">
-          {projects.map((project, index) => (
-            <Link className="project-preview" to={`/projects/${project.id}`} key={project.id}>
-              <div className="project-preview__index">0{index + 1}</div>
-              <div className="project-preview__content">
-                <span>{project.eyebrow}</span><h3>{project.title}</h3><p>{project.summary}</p>
-                <div className="tag-row">{project.skills.slice(0, 3).map((skill) => <i key={skill}>{skill}</i>)}</div>
-              </div>
-              <ArrowRight className="project-preview__arrow" size={20} />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="closing-cta section-shell">
-        <div><span className="section-kicker">今天只做一件事</span><h2>选一个25分钟任务，得到第一个可复用成果</h2></div>
-        <Link className="button button--primary" to="/learn?category=office">现在开始 <ArrowRight size={17} /></Link>
       </section>
     </main>
   );

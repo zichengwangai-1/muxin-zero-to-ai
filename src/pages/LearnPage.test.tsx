@@ -38,4 +38,20 @@ describe('学习目录', () => {
     expect(screen.getByText('没有找到匹配内容')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '清除搜索' })).toBeInTheDocument();
   });
+
+  it('搜索结果包含 AI 产品求职区的目录和完整文章', () => {
+    const { unmount } = renderLearn('/learn?q=AI%20基础知识');
+
+    expect(screen.getByRole('link', { name: /AI 基础知识/ })).toHaveAttribute(
+      'href',
+      '/aipm/01-ai-basics',
+    );
+
+    unmount();
+    renderLearn('/learn?q=大模型是怎么');
+    expect(screen.getByRole('link', { name: /大模型是怎么/ })).toHaveAttribute(
+      'href',
+      '/aipm/01-ai-basics/llm/how-llm-works',
+    );
+  });
 });

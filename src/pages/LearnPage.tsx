@@ -1,7 +1,8 @@
-import { RotateCcw } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { ArrowRight, BookOpenText, FolderOpen, RotateCcw } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ContentCard } from '../components/ContentCard';
 import { FilterBar } from '../components/FilterBar';
+import { aipmModules } from '../data/aipm-content';
 import { contentItems } from '../data/content';
 import { filterContent, type ContentFilter } from '../lib/content';
 import type { ContentCategory } from '../types/content';
@@ -16,6 +17,25 @@ export function LearnPage() {
     : 'all';
   const query = params.get('q') ?? '';
   const results = filterContent(contentItems, query, category);
+  const keyword = query.trim().toLocaleLowerCase('zh-CN');
+  const canShowAipm = category === 'all' || category === 'aipm' || category === 'interview';
+  const allowedModules = aipmModules.filter((module) => (
+    category !== 'interview' || module.id === '04-interview'
+  ));
+  const moduleResults = keyword && canShowAipm
+    ? allowedModules.filter((module) => (
+      `${module.name} ${module.description} ${module.outcome}`.toLocaleLowerCase('zh-CN').includes(keyword)
+    ))
+    : [];
+  const articleResults = keyword && canShowAipm
+    ? allowedModules
+      .flatMap((module) => module.articles)
+      .filter((article) => (
+        `${article.title} ${article.summary} ${article.content}`.toLocaleLowerCase('zh-CN').includes(keyword)
+      ))
+      .slice(0, 30)
+    : [];
+  const resultCount = results.length + moduleResults.length + articleResults.length;
 
   function updateParams(nextCategory: ContentFilter, nextQuery: string) {
     const next = new URLSearchParams();
@@ -52,15 +72,39 @@ export function LearnPage() {
       />
 
       <div className="results-heading">
-        <div><strong>{categoryName[category]}</strong><span>{results.length}项内容</span></div>
-        <p>所有内容都标明用时和最终产出</p>
+        <div><strong>{categoryName[category]}</strong><span>{resultCount}项内容</span></div>
+        <p>{keyword ? '已同时搜索任务、专业目录和完整文章' : '所有内容都标明用时和最终产出'}</p>
       </div>
 
-      {results.length > 0 ? (
+      {results.length > 0 && (
         <div className="content-grid">
           {results.map((item) => <ContentCard item={item} key={item.id} />)}
         </div>
-      ) : (
+      )}
+
+      {(moduleResults.length > 0 || articleResults.length > 0) && (
+        <section className="aipm-search-results" aria-labelledby="aipm-search-title">
+          <header><span>AI 产品求职区</span><h2 id="aipm-search-title">相关目录与文章</h2></header>
+          <div>
+            {moduleResults.map((module) => (
+              <Link className="aipm-search-result" key={module.id} to={`/aipm/${module.id}`}>
+                <span className="aipm-search-result__icon"><FolderOpen size={18} /></span>
+                <span><small>内容板块</small><strong>{module.name}</strong><p>{module.description}</p></span>
+                <em>{module.articles.length}篇</em><ArrowRight size={17} />
+              </Link>
+            ))}
+            {articleResults.map((article) => (
+              <Link className="aipm-search-result" key={article.id} to={`/aipm/${article.moduleId}/${article.articlePath}`}>
+                <span className="aipm-search-result__icon"><BookOpenText size={18} /></span>
+                <span><small>{article.groupName}</small><strong>{article.title}</strong><p>{article.summary}</p></span>
+                <em>约{article.duration}分钟</em><ArrowRight size={17} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {resultCount === 0 && (
         <div className="empty-state">
           <span className="empty-state__mark">?</span>
           <h2>没有找到匹配内容</h2>

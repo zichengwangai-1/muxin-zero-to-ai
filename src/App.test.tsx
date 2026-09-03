@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import App from './App';
@@ -39,16 +39,31 @@ describe('首页', () => {
     expect(screen.getByRole('heading', { name: 'AI实战教学区' })).toBeInTheDocument();
     expect(screen.getByText('努力开发中')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /AI实战教学区/ })).not.toBeInTheDocument();
+
+    expect(screen.getByRole('heading', { name: '省下80%的资料搜集时间' })).toBeInTheDocument();
+    expect(screen.getByText('6个专业目录')).toBeInTheDocument();
+    expect(screen.getAllByTestId('home-aipm-directory-link')).toHaveLength(6);
+    expect(screen.queryByRole('heading', { name: '从日常办公中最常见的任务开始' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /不只说“我学过”/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('今天只做一件事')).not.toBeInTheDocument();
   });
 
-  it('主导航直接进入 AI 产品求职区', () => {
+  it('页头只保留一个可提交的内容搜索框', () => {
     render(
       <MemoryRouter>
         <App />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: 'AI产品求职区' })).toHaveAttribute('href', '/aipm');
-    expect(screen.getByText('努力开发中')).toBeInTheDocument();
+    const header = screen.getByRole('banner');
+    expect(within(header).queryByRole('navigation')).not.toBeInTheDocument();
+    expect(within(header).queryByText('从目录开始')).not.toBeInTheDocument();
+    expect(within(header).getAllByRole('searchbox')).toHaveLength(1);
+
+    fireEvent.change(within(header).getByRole('searchbox'), { target: { value: 'RAG' } });
+    fireEvent.click(within(header).getByRole('button', { name: '搜索' }));
+
+    expect(screen.getByRole('heading', { name: '今天想完成什么？' })).toBeInTheDocument();
+    expect(screen.getByText('小白也能理解RAG：先查资料，再回答')).toBeInTheDocument();
   });
 });
