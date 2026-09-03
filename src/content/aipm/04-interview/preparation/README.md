@@ -14,22 +14,6 @@
 2. 如果项目需要现场展示，用[作品集与 Demo 准备](portfolio-and-demo.md)补齐评测集、成本、边界和演示兜底。
 3. 再回到[模型评测题](../basics/model-evaluation-system.md)、[Agent 基础题](../basics/agent-vs-chatbot.md)和[产品设计题](../product-design/README.md)，把项目经验连接到通用方法。
 
-## 配套 Skills
-
-如果希望把准备过程进一步工具化，可以安装以下两个面试 Skill：
-
-- [interview-self-introduce](https://github.com/archlizheng/interview-self-introduce)：根据 JD、简历和面试轮次生成并迭代自我介绍。
-- [interview-assessment](https://github.com/archlizheng/interview-assessment)：用于 JD/简历匹配、面试准备和面试后复盘。
-
-安装命令：
-
-```bash
-npx skills add archlizheng/interview-self-introduce
-npx skills add archlizheng/interview-assessment
-```
-
-这两个 Skill 是执行工具；本目录的文章仍负责提供项目深挖、作品集和 Demo 准备的方法论与检查框架。
-
 ## 相关阅读
 
 - [AI 产品 PRD 怎么写：与传统 PRD 的核心差异](../../02-pm-skills/prd-and-design/ai-prd-guide.md)

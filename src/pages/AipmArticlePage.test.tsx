@@ -43,4 +43,18 @@ describe('AI 产品求职区文章页', () => {
       '/aipm/01-ai-basics',
     );
   });
+
+  it('资源工具页不再展示面试 Skill 和安装命令', () => {
+    render(
+      <MemoryRouter initialEntries={['/aipm/05-resources/tools']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { name: '值得上手的 AI 工具与平台' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /面试 Skills/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/interview-self-introduce/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/interview-assessment/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/npx skills add/)).not.toBeInTheDocument();
+  });
 });
