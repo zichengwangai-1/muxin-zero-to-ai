@@ -16,12 +16,12 @@ const learningModules = [
   },
   {
     title: 'AI实战教学区',
-    description: '不只看教程，跟着步骤做出能直接使用的AI成果。',
-    items: ['办公效率提升', '网站制作', '必备prompt'],
-    href: '/learn?category=office',
+    description: '',
+    items: [],
+    href: null,
     icon: Rocket,
     tone: 'blue',
-    action: '开始动手做项目',
+    action: '努力开发中',
   },
 ] as const;
 
@@ -89,29 +89,44 @@ export function HomePage() {
         <div className="learning-module-grid">
           {learningModules.map((module) => {
             const Icon = module.icon;
-            return (
+            const content = (
+              <>
+                <div className="learning-module__top">
+                  <span className="learning-module__icon"><Icon size={24} /></span>
+                  {module.href && <ArrowUpRight className="learning-module__arrow" size={21} />}
+                </div>
+                <div className="learning-module__body">
+                  <h3>{module.title}</h3>
+                  {module.description && <p>{module.description}</p>}
+                  {module.items.length > 0 && (
+                    <ul aria-label={`${module.title}包含内容`}>
+                      {module.items.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  )}
+                </div>
+                <div className="learning-module__footer">
+                  <span>{module.action}</span>
+                  {module.href && <ArrowRight size={17} />}
+                </div>
+              </>
+            );
+            return module.href ? (
               <Link
                 className={`learning-module learning-module--${module.tone}`}
                 data-testid="learning-module"
                 key={module.title}
                 to={module.href}
               >
-                <div className="learning-module__top">
-                  <span className="learning-module__icon"><Icon size={24} /></span>
-                  <ArrowUpRight className="learning-module__arrow" size={21} />
-                </div>
-                <div className="learning-module__body">
-                  <h3>{module.title}</h3>
-                  <p>{module.description}</p>
-                  <ul aria-label={`${module.title}包含内容`}>
-                    {module.items.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-                <div className="learning-module__footer">
-                  <span>{module.action}</span>
-                  <ArrowRight size={17} />
-                </div>
+                {content}
               </Link>
+            ) : (
+              <article
+                className={`learning-module learning-module--${module.tone} learning-module--coming-soon`}
+                data-testid="learning-module"
+                key={module.title}
+              >
+                {content}
+              </article>
             );
           })}
         </div>

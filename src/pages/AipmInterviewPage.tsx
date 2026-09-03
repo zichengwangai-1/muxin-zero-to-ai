@@ -2,6 +2,7 @@ import {
   ArrowRight,
   BookOpenText,
   BrainCircuit,
+  Building2,
   Check,
   ChevronDown,
   CircleAlert,
@@ -16,6 +17,11 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { OriginalMarkdown } from '../components/OriginalMarkdown';
 import {
+  loadCompanyInterviewLibrary,
+  type CompanyInterviewEntry,
+  type CompanyInterviewGroup,
+} from '../data/company-interviews';
+import {
   loadInterviewCaseQuestions,
   type InterviewCaseQuestion,
 } from '../data/interview-cases';
@@ -24,6 +30,98 @@ import {
   interviewSources,
   type InterviewCategoryId,
 } from '../data/interview';
+
+function CompanyInterviewCard({ entry }: { entry: CompanyInterviewEntry }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <article className={`company-interview-card ${open ? 'is-open' : ''}`}>
+      <button
+        className="company-interview-card__toggle"
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="company-interview-card__platform">{entry.platform}</span>
+        <span className="company-interview-card__title">
+          <strong>{entry.title}</strong>
+          <small>{entry.position} · {entry.round}</small>
+        </span>
+        <ChevronDown size={19} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="company-interview-card__content">
+          <dl className="company-interview-card__facts">
+            <div><dt>公司</dt><dd>公司：{entry.company}</dd></div>
+            <div><dt>岗位</dt><dd>岗位：{entry.position}</dd></div>
+            <div><dt>面试轮次</dt><dd>轮次：{entry.round}</dd></div>
+          </dl>
+          <section className="company-interview-card__original" aria-label="原文内容">
+            <span>原文内容</span>
+            <OriginalMarkdown content={entry.content} />
+          </section>
+          {(entry.author || entry.sourceUrl) && (
+            <footer className="company-interview-card__source">
+              {entry.author && <span>原作者：{entry.author}</span>}
+              {entry.sourceUrl && (
+                <a href={entry.sourceUrl} target="_blank" rel="noreferrer">
+                  查看原链接 <ExternalLink size={13} />
+                </a>
+              )}
+            </footer>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function CompanyInterviewLibraryView({ groups }: { groups: CompanyInterviewGroup[] }) {
+  const [selectedCompany, setSelectedCompany] = useState(groups[0]?.company ?? '');
+  const activeGroup = groups.find((group) => group.company === selectedCompany) ?? groups[0];
+
+  useEffect(() => {
+    if (!groups.some((group) => group.company === selectedCompany)) {
+      setSelectedCompany(groups[0]?.company ?? '');
+    }
+  }, [groups, selectedCompany]);
+
+  if (!activeGroup) return <div className="source-loading">正在整理公司面经…</div>;
+
+  return (
+    <div className="company-library">
+      <header className="company-library__intro">
+        <div className="content-heading">
+          <Building2 size={18} />
+          <div><span>真实面试记录</span><h3>按公司查看真实面经</h3></div>
+        </div>
+        <p>选公司，再看岗位和轮次。未提及公司的内容统一放在“通用面经与求职经验”。</p>
+      </header>
+      <div className="company-library__filters" aria-label="公司筛选">
+        {groups.map((group) => (
+          <button
+            className={group.company === activeGroup.company ? 'is-active' : ''}
+            key={group.company}
+            type="button"
+            aria-pressed={group.company === activeGroup.company}
+            onClick={() => setSelectedCompany(group.company)}
+          >
+            <span>{group.company}</span><small>{group.entries.length}</small>
+          </button>
+        ))}
+      </div>
+      <div className="company-library__result">
+        <div className="company-library__result-heading">
+          <strong>{activeGroup.company}</strong>
+          <span>{activeGroup.entries.length}份内容</span>
+        </div>
+        <div className="company-interview-list">
+          {activeGroup.entries.map((entry) => <CompanyInterviewCard entry={entry} key={entry.id} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function QuestionCaseCard({ question, number }: { question: InterviewCaseQuestion; number: number }) {
   const [open, setOpen] = useState(false);
@@ -143,8 +241,11 @@ function QuestionCaseCard({ question, number }: { question: InterviewCaseQuestio
 export function AipmInterviewPage() {
   const [selectedId, setSelectedId] = useState<InterviewCategoryId>('personal');
   const [query, setQuery] = useState('');
+  const [libraryView, setLibraryView] = useState<'questions' | 'companies'>('questions');
   const [caseQuestions, setCaseQuestions] = useState<InterviewCaseQuestion[]>([]);
   const [casesLoading, setCasesLoading] = useState(true);
+  const [companyGroups, setCompanyGroups] = useState<CompanyInterviewGroup[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(false);
   const category = interviewCategories.find((item) => item.id === selectedId) ?? interviewCategories[0];
 
   useEffect(() => {
@@ -157,6 +258,18 @@ export function AipmInterviewPage() {
     });
     return () => { active = false; };
   }, [selectedId]);
+
+  useEffect(() => {
+    if (libraryView !== 'companies' || companyGroups.length > 0) return;
+    let active = true;
+    setCompaniesLoading(true);
+    loadCompanyInterviewLibrary().then((groups) => {
+      if (!active) return;
+      setCompanyGroups(groups);
+      setCompaniesLoading(false);
+    });
+    return () => { active = false; };
+  }, [companyGroups.length, libraryView]);
 
   const filteredQuestions = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -248,25 +361,46 @@ export function AipmInterviewPage() {
           <section className="source-library" aria-labelledby="source-title">
             <div className="source-library__heading">
               <div className="content-heading"><Library size={18} /><div><span>按问题归类</span><h3 id="source-title">面经真实案例面</h3></div></div>
-              <span>{filteredQuestions.length}个真实问题</span>
+              <div className="source-library__tabs" role="group" aria-label="面经浏览方式">
+                <button
+                  className={libraryView === 'questions' ? 'is-active' : ''}
+                  type="button"
+                  aria-pressed={libraryView === 'questions'}
+                  onClick={() => setLibraryView('questions')}
+                >按问题练习</button>
+                <button
+                  className={libraryView === 'companies' ? 'is-active' : ''}
+                  type="button"
+                  aria-pressed={libraryView === 'companies'}
+                  onClick={() => setLibraryView('companies')}
+                >公司面经库</button>
+              </div>
             </div>
-            <p className="source-library__lead">每张卡片就是一道面试题。展开后可以对照不同面经中的有效回答，不再需要先理解博主原标题。</p>
-            <label className="source-search">
-              <Search size={17} />
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="搜索真实面试问题"
-              />
-            </label>
-            <div className="interview-source-list">
-              {casesLoading && <div className="source-loading">正在整理真实面试问题…</div>}
-              {!casesLoading && filteredQuestions.map((question, index) => (
-                <QuestionCaseCard key={question.id} question={question} number={index + 1} />
-              ))}
-              {!casesLoading && filteredQuestions.length === 0 && <div className="source-empty">没有找到相关问题，试试更短的关键词。</div>}
-            </div>
+            {libraryView === 'questions' ? (
+              <>
+                <p className="source-library__lead">每张卡片就是一道面试题。展开后可以对照不同面经中的有效回答，不再需要先理解博主原标题。</p>
+                <label className="source-search">
+                  <Search size={17} />
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="搜索真实面试问题"
+                  />
+                </label>
+                <div className="interview-source-list">
+                  {casesLoading && <div className="source-loading">正在整理真实面试问题…</div>}
+                  {!casesLoading && filteredQuestions.map((question, index) => (
+                    <QuestionCaseCard key={question.id} question={question} number={index + 1} />
+                  ))}
+                  {!casesLoading && filteredQuestions.length === 0 && <div className="source-empty">没有找到相关问题，试试更短的关键词。</div>}
+                </div>
+              </>
+            ) : (
+              companiesLoading
+                ? <div className="source-loading">正在整理公司面经…</div>
+                : <CompanyInterviewLibraryView groups={companyGroups} />
+            )}
           </section>
 
           <section className="prep-center">

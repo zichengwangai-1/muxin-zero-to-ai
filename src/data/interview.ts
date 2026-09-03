@@ -119,7 +119,6 @@ export const interviewCategories: InterviewCategory[] = [
 
 const standaloneCategoryMap: Record<string, InterviewCategoryId[]> = {
   '笔记01_小红书AI产品实习面经.md': ['personal', 'concepts', 'sense', 'agent', 'rag', 'evaluation', 'safety'],
-  '笔记02_分享AI产品面试出彩回答思路.md': ['sense'],
   '小红书面经_AI产品面试出彩回答思路.md': ['sense'],
   '笔记03_2天8面拿字节校招offer.md': ['personal', 'project'],
   '笔记04_Kimi产品岗一面面经.md': ['personal', 'project', 'sense'],
@@ -167,7 +166,6 @@ function cleanMarkdown(value: string) {
 }
 
 function noteFor(filename: string) {
-  if (filename === '小红书面经_AI产品面试出彩回答思路.md') return '与“笔记02”来自同一篇小红书内容，保留用于来源核对。';
   if (filename === '笔记11_一个狠但能让你5天拿下AI产品面试的方法.md') return '原文工具调用部分存在截断，未补写缺失内容。';
   if (filename === '笔记14_Shopee_AI产品经理一面面经.md') return '原文结尾存在截断，未推测缺失结论。';
   if (filename === '笔记17_今天上午面了六个AI产品全是半吊子.md') return '原文部分回答存在截断，未推测缺失内容。';

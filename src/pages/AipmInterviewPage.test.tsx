@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import App from '../App';
+import { loadCompanyInterviewLibrary } from '../data/company-interviews';
 import { loadAllInterviewCaseQuestions, removePlatformMetadata } from '../data/interview-cases';
 import { interviewCategories, interviewSources, sourcesForCategory } from '../data/interview';
 
@@ -14,9 +15,10 @@ function renderInterviewPage() {
 }
 
 describe('AI产品求职区', () => {
-  it('完整载入22份独立笔记和拆分后的23条抖音内容', async () => {
-    expect(interviewSources).toHaveLength(45);
-    expect(new Set(interviewSources.map((source) => source.id))).toHaveLength(45);
+  it('完整载入去重后的21份独立笔记和拆分后的23条抖音内容', async () => {
+    expect(interviewSources).toHaveLength(44);
+    expect(new Set(interviewSources.map((source) => source.id))).toHaveLength(44);
+    expect(interviewSources.some((source) => source.id === '笔记02_分享AI产品面试出彩回答思路')).toBe(false);
     expect(interviewSources.every((source) => source.categories.length > 0)).toBe(true);
     expect(interviewCategories.every((category) => sourcesForCategory(category.id).length > 0)).toBe(true);
     const originals = await Promise.all(interviewSources.map((source) => source.loadOriginal()));
@@ -62,7 +64,7 @@ describe('AI产品求职区', () => {
     expect(screen.queryByText(/笔记链接：/)).not.toBeInTheDocument();
   });
 
-  it('拆解后仍覆盖全部45份面经素材', async () => {
+  it('拆解后仍覆盖全部44份去重面经素材', async () => {
     const questions = await loadAllInterviewCaseQuestions();
     const representedSourceIds = new Set(
       questions.flatMap((question) => question.cases.map((item) => item.sourceId)),
@@ -144,5 +146,46 @@ describe('AI产品求职区', () => {
 
     expect(cleaned).toContain('应先拆解Bad Case');
     expect(cleaned).not.toMatch(/作者：|点赞：|发布时间：|图片数：|笔记链接：|https?:\/\//);
+  });
+
+  it('把去重后的面试笔记按公司归档，且不丢失来源', async () => {
+    const library = await loadCompanyInterviewLibrary();
+    const entries = library.flatMap((group) => group.entries);
+
+    expect(entries).toHaveLength(44);
+    expect(new Set(entries.map((entry) => entry.id)).size).toBe(44);
+    expect(library.find((group) => group.company === '字节跳动')?.entries.length).toBeGreaterThanOrEqual(5);
+    expect(library.find((group) => group.company === '通用面经与求职经验')?.entries.length).toBeGreaterThan(0);
+    entries.forEach((entry) => {
+      expect(entry.content.length).toBeGreaterThan(20);
+      expect(entry.content).not.toMatch(/图片说明|offer截图|点赞：|发布时间：|图片数：|笔记链接：|调研时间：|筛选标准：|https?:\/\//i);
+    });
+
+    const byteDance = entries.find((entry) => entry.id === '笔记03_2天8面拿字节校招offer');
+    expect(byteDance).toMatchObject({
+      company: '字节跳动',
+      position: 'AI产品经理',
+      round: '多轮面试',
+      author: '柔小柔鸭',
+      sourceUrl: 'https://www.xiaohongshu.com/explore/6a7eda900000000028030f92',
+    });
+    expect(byteDance?.content).not.toMatch(/录用意向书|点赞：|发布时间：|图片数：|笔记信息|时间线|图片里/);
+  });
+
+  it('在页面上可切换到公司面经库并阅读原文', async () => {
+    renderInterviewPage();
+
+    fireEvent.click(screen.getByRole('button', { name: '公司面经库' }));
+
+    expect(await screen.findByRole('heading', { name: '按公司查看真实面经' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /字节跳动/ }));
+    const entry = await screen.findByRole('button', { name: /2天8面拿字节校招offer/ });
+    fireEvent.click(entry);
+
+    expect(await screen.findByText('公司：字节跳动')).toBeInTheDocument();
+    expect(screen.getByText('岗位：AI产品经理')).toBeInTheDocument();
+    expect(screen.getByText('轮次：多轮面试')).toBeInTheDocument();
+    expect(screen.getByText('原作者：柔小柔鸭')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '查看原链接' })).toHaveAttribute('href', 'https://www.xiaohongshu.com/explore/6a7eda900000000028030f92');
   });
 });
