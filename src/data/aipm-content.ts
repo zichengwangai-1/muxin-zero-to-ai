@@ -101,11 +101,17 @@ const groupNames: Record<string, string> = {
   'case-analysis': '商业分析与估算题',
   behavioral: '行为面试与项目表达',
   preparation: '求职准备',
-  experiences: '仓库面经记录',
+  experiences: '真实面试经验',
 };
 
 const rawArticles = import.meta.glob('../content/aipm/**/*.md', {
   query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const contentAssets = import.meta.glob('../content/aipm/**/*.{png,jpg,jpeg,webp}', {
+  query: '?url',
   import: 'default',
   eager: true,
 }) as Record<string, string>;
@@ -115,6 +121,8 @@ function stripMarkdown(value: string) {
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/[`*_>#|]/g, '')
+    .replace(/\bAIPM-Wiki\b/g, '本站')
+    .replace(/本仓库/g, '本站')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -190,6 +198,17 @@ export function getArticleByRoute(moduleId?: string, articlePath?: string) {
   return indexedArticles.find((article) => (
     article.moduleId === moduleId && article.articlePath === decodedPath
   ));
+}
+
+export function getContentAssetUrl(moduleId: string, articlePath: string, href: string) {
+  const segments = `${moduleId}/${articlePath}`.split('/');
+  segments.pop();
+  href.split('/').forEach((segment) => {
+    if (!segment || segment === '.') return;
+    if (segment === '..') segments.pop();
+    else segments.push(segment);
+  });
+  return contentAssets[`../content/aipm/${segments.join('/')}`];
 }
 
 export function articlesByGroup(module: AipmModule) {

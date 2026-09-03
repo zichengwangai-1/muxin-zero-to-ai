@@ -1,10 +1,37 @@
 import { ArrowLeft, BrainCircuit, Clock3, Lightbulb, Sparkles } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { OriginalMarkdown } from '../components/OriginalMarkdown';
-import { getArticleByRoute, getModuleById } from '../data/aipm-content';
+import { getArticleByRoute, getContentAssetUrl, getModuleById } from '../data/aipm-content';
 
 function withoutFirstHeading(content: string) {
   return content.replace(/^#\s+.+\n?/, '').trim();
+}
+
+function createContentLinkResolver(moduleId: string, articlePath: string) {
+  return (href: string) => {
+    if (/^(?:https?:\/\/|mailto:|#)/.test(href)) return href;
+    const [pathPart, hash] = href.split('#');
+    if (!pathPart.endsWith('.md')) return href;
+
+    const segments = `${moduleId}/${articlePath}`.split('/');
+    segments.pop();
+    pathPart.split('/').forEach((segment) => {
+      if (!segment || segment === '.') return;
+      if (segment === '..') segments.pop();
+      else segments.push(segment);
+    });
+
+    const [resolvedModule, ...resolvedPath] = segments;
+    const pointsToDirectory = resolvedPath.at(-1) === 'README.md';
+    if (pointsToDirectory) {
+      const groupId = resolvedPath.length > 1 ? resolvedPath[0] : undefined;
+      const route = `/aipm/${resolvedModule}`;
+      return hash ? `${route}#${hash}` : groupId ? `${route}#group-${groupId}` : route;
+    }
+
+    const route = `/aipm/${resolvedModule}/${resolvedPath.join('/').replace(/\.md$/, '')}`;
+    return hash ? `${route}#${hash}` : route;
+  };
 }
 
 export function AipmArticlePage() {
@@ -24,6 +51,8 @@ export function AipmArticlePage() {
   }
 
   const isBasics = module.id === '01-ai-basics';
+  const resolveLink = createContentLinkResolver(module.id, article.articlePath);
+  const resolveImage = (href: string) => getContentAssetUrl(module.id, article.articlePath, href);
 
   return (
     <main className="aipm-reading">
@@ -60,7 +89,7 @@ export function AipmArticlePage() {
                 <span><Lightbulb size={19} /></span>
                 <div><small>原理、例子与应用</small><h2 id="deep-title">想深入再看</h2></div>
               </div>
-              <OriginalMarkdown content={withoutFirstHeading(article.content)} />
+              <OriginalMarkdown content={withoutFirstHeading(article.content)} resolveImage={resolveImage} resolveLink={resolveLink} />
             </section>
           </>
         ) : (
@@ -74,7 +103,7 @@ export function AipmArticlePage() {
                 <span><BookTextIcon /></span>
                 <div><small>按原有逻辑完整阅读</small><h2 id="full-content-title">完整内容</h2></div>
               </div>
-              <OriginalMarkdown content={withoutFirstHeading(article.content)} />
+              <OriginalMarkdown content={withoutFirstHeading(article.content)} resolveImage={resolveImage} resolveLink={resolveLink} />
             </section>
           </>
         )}

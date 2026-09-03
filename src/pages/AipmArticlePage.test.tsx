@@ -30,4 +30,17 @@ describe('AI 产品求职区文章页', () => {
     expect(screen.getByText('完整内容')).toBeInTheDocument();
     expect(screen.getAllByText(/预训练是"读书学通用知识"/).length).toBeGreaterThan(0);
   });
+
+  it('把内容目录链接改写到可访问的站内板块页', () => {
+    render(
+      <MemoryRouter initialEntries={['/aipm/00-roadmap/getting-started']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('link', { name: '01-ai-basics' })).toHaveAttribute(
+      'href',
+      '/aipm/01-ai-basics',
+    );
+  });
 });

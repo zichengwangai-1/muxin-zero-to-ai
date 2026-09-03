@@ -1,4 +1,7 @@
-import { interviewSources, type InterviewSource } from './interview';
+import {
+  companyInterviewSources,
+  type CompanyInterviewSource,
+} from './company-interview-sources';
 
 export interface CompanyInterviewEntry {
   id: string;
@@ -124,11 +127,11 @@ export function cleanCompanyInterviewContent(raw: string) {
   return result.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-function identityFor(source: InterviewSource): InterviewIdentity {
+function identityFor(source: CompanyInterviewSource): InterviewIdentity {
   return { ...genericIdentity, ...sourceIdentities[source.id] };
 }
 
-async function buildEntry(source: InterviewSource): Promise<CompanyInterviewEntry> {
+async function buildEntry(source: CompanyInterviewSource): Promise<CompanyInterviewEntry> {
   const raw = await source.loadOriginal();
   return {
     id: source.id,
@@ -144,7 +147,7 @@ async function buildEntry(source: InterviewSource): Promise<CompanyInterviewEntr
 let companyLibraryPromise: Promise<CompanyInterviewGroup[]> | undefined;
 
 export function loadCompanyInterviewLibrary() {
-  companyLibraryPromise ??= Promise.all(interviewSources.map(buildEntry)).then((entries) => {
+  companyLibraryPromise ??= Promise.all(companyInterviewSources.map(buildEntry)).then((entries) => {
     const grouped = new Map<string, CompanyInterviewEntry[]>();
     entries.forEach((entry) => {
       const current = grouped.get(entry.company) ?? [];

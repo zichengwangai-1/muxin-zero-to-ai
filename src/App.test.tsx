@@ -31,7 +31,7 @@ describe('首页', () => {
     expect(screen.getByRole('heading', { name: '帮你省时省力的达成目的' })).toBeInTheDocument();
     expect(screen.getAllByTestId('learning-module')).toHaveLength(2);
     expect(screen.getByRole('heading', { name: 'AI产品求职区' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /AI产品求职区/ })).toHaveAttribute('href', '/aipm');
+    expect(screen.getAllByRole('link', { name: /AI产品求职区/ }).some((link) => link.getAttribute('href') === '/aipm')).toBe(true);
     expect(screen.getByText('技术知识学习')).toBeInTheDocument();
     expect(screen.getByText('面试训练')).toBeInTheDocument();
     expect(screen.getByText('论文解读')).toBeInTheDocument();
@@ -39,5 +39,16 @@ describe('首页', () => {
     expect(screen.getByRole('heading', { name: 'AI实战教学区' })).toBeInTheDocument();
     expect(screen.getByText('努力开发中')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /AI实战教学区/ })).not.toBeInTheDocument();
+  });
+
+  it('主导航直接进入 AI 产品求职区', () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('link', { name: 'AI产品求职区' })).toHaveAttribute('href', '/aipm');
+    expect(screen.getByText('努力开发中')).toBeInTheDocument();
   });
 });
