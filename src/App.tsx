@@ -4,6 +4,7 @@ import { ContentDetailPage } from './pages/ContentDetailPage';
 import { AipmInterviewPage } from './pages/AipmInterviewPage';
 import { AipmArticlePage } from './pages/AipmArticlePage';
 import { AipmModulePage } from './pages/AipmModulePage';
+import { CompanyInterviewLibraryPage } from './pages/CompanyInterviewLibraryPage';
 import { HomePage } from './pages/HomePage';
 import { LearnPage } from './pages/LearnPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
@@ -16,6 +17,7 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="aipm" element={<AipmInterviewPage />} />
         <Route path="aipm/:moduleId" element={<AipmModulePage />} />
+        <Route path="aipm/04-interview/company-experiences" element={<CompanyInterviewLibraryPage />} />
         <Route path="aipm/:moduleId/*" element={<AipmArticlePage />} />
         <Route path="learn" element={<LearnPage />} />
         <Route path="content/:id" element={<ContentDetailPage />} />

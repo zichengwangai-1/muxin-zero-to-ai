@@ -48,6 +48,13 @@ export function AipmModulePage() {
         </nav>
 
         <div className="aipm-catalog__groups">
+          {module.id === '04-interview' && (
+            <Link className="company-library-entry" to="/aipm/04-interview/company-experiences">
+              <span><BookOpenText size={20} /></span>
+              <div><small>真实面试记录</small><h2>公司面经库</h2><p>按公司、岗位和面试轮次查看你收集的 44 份有效原文。</p></div>
+              <ArrowRight size={19} />
+            </Link>
+          )}
           {groups.map((group, groupIndex) => (
             <section className="aipm-article-group" id={`group-${group.id}`} key={group.id}>
               <header>
