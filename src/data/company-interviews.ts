@@ -2,6 +2,7 @@ import {
   companyInterviewSources,
   type CompanyInterviewSource,
 } from './company-interview-sources';
+import { sanitizePublicCopy } from '../utils/public-copy';
 
 export interface CompanyInterviewEntry {
   id: string;
@@ -132,7 +133,7 @@ function identityFor(source: CompanyInterviewSource): InterviewIdentity {
 }
 
 async function buildEntry(source: CompanyInterviewSource): Promise<CompanyInterviewEntry> {
-  const raw = await source.loadOriginal();
+  const raw = sanitizePublicCopy(await source.loadOriginal());
   return {
     id: source.id,
     title: source.title,

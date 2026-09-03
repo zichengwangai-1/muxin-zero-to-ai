@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { sanitizePublicCopy } from '../utils/public-copy';
 
 type OriginalMarkdownProps = {
   content: string;
@@ -7,7 +8,7 @@ type OriginalMarkdownProps = {
 };
 
 function sanitizeVisibleCopy(text: string) {
-  return text
+  return sanitizePublicCopy(text)
     .replace(/\bAIPM-Wiki\b/g, '本站')
     .replace(/本仓库/g, '本站');
 }

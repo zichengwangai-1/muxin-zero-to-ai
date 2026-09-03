@@ -1,3 +1,5 @@
+import { sanitizePublicCopy } from '../utils/public-copy';
+
 export type AipmModuleId =
   | '00-roadmap'
   | '01-ai-basics'
@@ -117,7 +119,7 @@ const contentAssets = import.meta.glob('../content/aipm/**/*.{png,jpg,jpeg,webp}
 }) as Record<string, string>;
 
 function stripMarkdown(value: string) {
-  return value
+  return sanitizePublicCopy(value)
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/[`*_>#|]/g, '')
@@ -161,6 +163,7 @@ function toArticle(sourcePath: string, content: string): AipmArticle | null {
   const filename = segments.at(-1)?.replace(/\.md$/, '') ?? '';
   const articlePath = segments.slice(1).join('/').replace(/\.md$/, '');
   const groupId = segments.length > 2 ? segments[1] : '核心内容';
+  const publicContent = sanitizePublicCopy(content);
 
   return {
     id: `${moduleId}/${articlePath}`,
@@ -168,10 +171,10 @@ function toArticle(sourcePath: string, content: string): AipmArticle | null {
     articlePath,
     groupId,
     groupName: groupNames[groupId] ?? groupId,
-    title: extractTitle(content, filename),
-    summary: extractSummary(content),
-    duration: Math.max(4, Math.ceil(stripMarkdown(content).length / 420)),
-    content,
+    title: extractTitle(publicContent, filename),
+    summary: extractSummary(publicContent),
+    duration: Math.max(4, Math.ceil(stripMarkdown(publicContent).length / 420)),
+    content: publicContent,
   };
 }
 
