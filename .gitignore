@@ -6,3 +6,8 @@ vite.config.d.ts
 .DS_Store
 *.log
 research/last30days/*.db
+
+# Tencent Cloud EdgeOne
+.env
+.edgeone/*
+.tef_dist/*
