@@ -11,3 +11,6 @@ research/last30days/*.db
 .env
 .edgeone/*
 .tef_dist/*
+
+# Local Netlify folder
+.netlify
