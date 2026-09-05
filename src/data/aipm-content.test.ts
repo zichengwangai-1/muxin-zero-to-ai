@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  articlesByGroup,
   aipmModules,
   getArticleByRoute,
   getModuleById,
@@ -41,5 +42,33 @@ describe('AI 产品求职区内容索引', () => {
     expect(moduleNames).not.toContain('个人表达与岗位动机');
     expect(moduleNames).not.toContain('RAG与企业知识库');
     expect(moduleNames).not.toContain('Prompt与AI交互设计');
+  });
+
+  it('把用户收集的真实面试笔记放在 06 真实面试经验顶部', () => {
+    const interview = getModuleById('04-interview');
+    expect(interview).toBeDefined();
+
+    const experienceGroup = articlesByGroup(interview!).find((group) => group.id === 'experiences');
+    expect(experienceGroup?.articles.slice(0, 8).map((article) => article.title)).toEqual([
+      '真实 AI 产品面试高频题：先从这份总览开始',
+      '字节 AI 产品面试：项目深挖、岗位动机与产品判断',
+      'Kimi 产品岗一面：项目产品化、搜索与 Memory 设计',
+      'Shopee AI 产品一面：企业知识库 Agent 如何讲完整',
+      'Agent 高频面试题：从真假需求到上线评测',
+      'AI 产品评测面试：从评测目标到 Bad Case 闭环',
+      'RAG、微调与模型选型：面试时如何做技术决策',
+      'Prompt 与幻觉治理：不要把所有问题都推给提示词',
+    ]);
+  });
+
+  it('真实面试笔记使用统一答题结构并剔除无关信息', () => {
+    const article = getArticleByRoute('04-interview', 'experiences/00-collected-interview-overview');
+
+    expect(article?.content).toContain('## 考察点');
+    expect(article?.content).toContain('## 参考答案');
+    expect(article?.content).toContain('## 小白怎么理解');
+    expect(article?.content).toContain('## 追问延伸');
+    expect(article?.content).toContain('## 一句话记忆');
+    expect(article?.content).not.toMatch(/点赞数|图片数|Offer截图|识别图片/);
   });
 });
