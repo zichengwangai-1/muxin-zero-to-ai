@@ -32,4 +32,21 @@ describe('AI 产品求职区板块目录', () => {
     expect(screen.getByText('没有找到这个内容板块')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: '返回 AI 产品求职区' })).toHaveAttribute('href', '/aipm');
   });
+
+  it('论文解读目录沿用原目录样式并能进入详情', () => {
+    render(
+      <MemoryRouter initialEntries={['/aipm/07-paper-insights']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { name: '论文解读' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '评测与可靠性' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '记忆与上下文' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Agent 系统设计' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /EarlyEval/ })).toHaveAttribute(
+      'href',
+      '/aipm/07-paper-insights/evaluation-reliability/earlyeval',
+    );
+  });
 });

@@ -57,4 +57,17 @@ describe('AI 产品求职区文章页', () => {
     expect(screen.queryByText(/interview-assessment/)).not.toBeInTheDocument();
     expect(screen.queryByText(/npx skills add/)).not.toBeInTheDocument();
   });
+
+  it('论文详情页展示完整的产品启发和面试表达', () => {
+    render(
+      <MemoryRouter initialEntries={['/aipm/07-paper-insights/evaluation-reliability/earlyeval']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { name: /EarlyEval/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '对 AI 产品经理的五层启发' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '面试参考答案' })).toBeInTheDocument();
+    expect(screen.getByText(/停止条件也是产品能力/)).toBeInTheDocument();
+  });
 });

@@ -6,7 +6,9 @@ export type AipmModuleId =
   | '02-pm-skills'
   | '03-case-studies'
   | '04-interview'
-  | '05-resources';
+  | '05-resources'
+  | '06-product-experience'
+  | '07-paper-insights';
 
 export interface AipmArticle {
   id: string;
@@ -81,6 +83,22 @@ const moduleDefinitions: ModuleDefinition[] = [
     outcome: '少走弯路，只补充当前真正需要的材料',
     groupOrder: ['核心内容'],
   },
+  {
+    id: '06-product-experience',
+    index: '06',
+    name: '产品体验',
+    description: '体验近期上线的小团队 AI 产品，既讲亮点，也讲问题和改进思路。',
+    outcome: '积累有观点、有证据的产品体验案例',
+    groupOrder: ['workflow', 'developer-tools', 'content-creation', 'vertical-ai'],
+  },
+  {
+    id: '07-paper-insights',
+    index: '07',
+    name: '论文解读',
+    description: '只看近两个月值得产品经理关注的论文，把研究结论变成产品判断。',
+    outcome: '能讲清论文发现，并提出自己的产品思考',
+    groupOrder: ['evaluation-reliability', 'memory-context', 'agent-systems'],
+  },
 ];
 
 const groupNames: Record<string, string> = {
@@ -104,6 +122,13 @@ const groupNames: Record<string, string> = {
   behavioral: '行为面试与项目表达',
   preparation: '求职准备',
   experiences: '真实面试经验',
+  workflow: '效率与个人工作流',
+  'developer-tools': 'AI 开发与产品工具',
+  'content-creation': '内容与创作工具',
+  'vertical-ai': '垂直场景产品',
+  'evaluation-reliability': '评测与可靠性',
+  'memory-context': '记忆与上下文',
+  'agent-systems': 'Agent 系统设计',
 };
 
 const rawArticles = import.meta.glob('../content/aipm/**/*.md', {

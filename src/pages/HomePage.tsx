@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, BrainCircuit, BriefcaseBusiness, Rocket, Route, Target } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BadgeDollarSign, BrainCircuit, BriefcaseBusiness, Rocket, Route, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { aipmModules } from '../data/aipm-content';
 
@@ -39,13 +39,23 @@ export function HomePage() {
           </div>
           <p className="hero__lead">即使零基础用户，也能在这里提升职场竞争力</p>
           <div className="hero-principles" aria-label="网站学习特点">
-            <div className="principle-card principle-card--blue">
+            <div className="principle-card principle-card--blue" data-testid="feature-card">
               <span className="principle-card__icon"><Target size={22} /></span>
-              <div><strong>以目标导向</strong><small>避免100个小时的AI大模型专业课，不如学30%的关键内容。</small></div>
+              <div className="feature-card__content"><strong>以目标导向</strong><small>避免100个小时的AI大模型专业课，不如学30%的关键内容。</small></div>
             </div>
-            <div className="principle-card principle-card--violet">
+            <div className="principle-card principle-card--violet" data-testid="feature-card">
               <span className="principle-card__icon"><BrainCircuit size={22} /></span>
-              <div><strong>大师记忆法</strong><small>学了记不住？用记忆大师方法帮你记忆。</small></div>
+              <div className="feature-card__content"><strong>大师记忆法</strong><small>学了记不住？用记忆大师方法帮你记忆。</small></div>
+            </div>
+          </div>
+          <div className="time-value-card" aria-label="时间价值" data-testid="feature-card">
+            <span className="time-value-card__mark" aria-hidden="true">
+              <BadgeDollarSign size={25} />
+            </span>
+            <div className="time-value-card__copy feature-card__content">
+              <span>TIME = MONEY</span>
+              <h2>省下80%的资料收集时间</h2>
+              <p>从筛选、收集到面试，只留下真正需要学的内容。</p>
             </div>
           </div>
         </div>
@@ -146,7 +156,7 @@ export function HomePage() {
         <div className="home-directory" aria-label="AI产品求职区目录">
           <div className="home-directory__header">
             <div><span>AI 产品求职区</span><strong>完整学习地图</strong></div>
-            <small>6个专业目录</small>
+            <small>8个专业目录</small>
           </div>
           <div className="home-directory__list">
             {aipmModules.map((module) => (

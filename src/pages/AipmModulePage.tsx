@@ -11,7 +11,7 @@ export function AipmModulePage() {
       <main className="aipm-empty section-shell">
         <span>内容不存在</span>
         <h1>没有找到这个内容板块</h1>
-        <p>它可能已经移动，返回六大板块重新选择即可。</p>
+        <p>它可能已经移动，返回内容目录重新选择即可。</p>
         <Link className="button button--primary" to="/aipm">返回 AI 产品求职区</Link>
       </main>
     );
@@ -22,7 +22,7 @@ export function AipmModulePage() {
   return (
     <main className="aipm-catalog">
       <section className="aipm-catalog__hero section-shell">
-        <Link className="aipm-back-link" to="/aipm"><ArrowLeft size={16} />六大板块</Link>
+        <Link className="aipm-back-link" to="/aipm"><ArrowLeft size={16} />内容目录</Link>
         <div className="aipm-catalog__title">
           <span>{module.index}</span>
           <div>

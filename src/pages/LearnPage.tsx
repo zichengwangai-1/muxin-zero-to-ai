@@ -107,7 +107,7 @@ export function LearnPage() {
         <div className="aipm-search-empty">
           <Search size={22} />
           <h2>输入关键词开始搜索</h2>
-          <p>搜索范围包括六大专业目录及其中的完整文章。</p>
+          <p>搜索范围包括八个专业目录及其中的完整文章。</p>
         </div>
       )}
 

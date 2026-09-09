@@ -4,8 +4,10 @@ import {
   BrainCircuit,
   BriefcaseBusiness,
   FolderKanban,
+  FlaskConical,
   Library,
   Map,
+  Telescope,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { Link } from 'react-router-dom';
@@ -18,6 +20,8 @@ const moduleIcons: Record<AipmModuleId, ComponentType<{ size?: number }>> = {
   '03-case-studies': FolderKanban,
   '04-interview': BookOpen,
   '05-resources': Library,
+  '06-product-experience': Telescope,
+  '07-paper-insights': FlaskConical,
 };
 
 export function AipmHubPage() {
@@ -41,7 +45,7 @@ export function AipmHubPage() {
       <section className="aipm-module-section section-shell" aria-labelledby="aipm-modules-title">
         <header className="aipm-module-section__heading">
           <div>
-            <span>六个内容板块</span>
+            <span>八个内容板块</span>
             <h2 id="aipm-modules-title">从你最需要的地方开始</h2>
           </div>
           <p>每个知识点只放在一个主目录中，避免重复学习。</p>

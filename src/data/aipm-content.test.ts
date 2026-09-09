@@ -7,7 +7,7 @@ import {
 } from './aipm-content';
 
 describe('AI 产品求职区内容索引', () => {
-  it('严格使用六个一级内容板块', () => {
+  it('在原有六个板块后增加产品体验与论文解读', () => {
     expect(aipmModules.map((item) => item.id)).toEqual([
       '00-roadmap',
       '01-ai-basics',
@@ -15,6 +15,8 @@ describe('AI 产品求职区内容索引', () => {
       '03-case-studies',
       '04-interview',
       '05-resources',
+      '06-product-experience',
+      '07-paper-insights',
     ]);
   });
 
@@ -34,6 +36,39 @@ describe('AI 产品求职区内容索引', () => {
     expect(basics?.name).toBe('AI 基础知识');
     expect(article?.title).toContain('大模型');
     expect(article?.content).toContain('预测下一个');
+  });
+
+  it('能找到近期产品体验和近两个月论文解读', () => {
+    const product = getArticleByRoute('06-product-experience', 'workflow/taku-ai');
+    const paper = getArticleByRoute('07-paper-insights', 'evaluation-reliability/earlyeval');
+
+    expect(product?.title).toContain('Taku AI');
+    expect(product?.content).toContain('产品经理拆解');
+    expect(paper?.title).toContain('EarlyEval');
+    expect(paper?.content).toContain('对 AI 产品经理的五层启发');
+    expect(paper?.content).toContain('面试参考答案');
+  });
+
+  it('论文解读收录推荐源筛选并经原文核对的 15 篇内容', () => {
+    const module = getModuleById('07-paper-insights');
+    const judge = getArticleByRoute(
+      '07-paper-insights',
+      'evaluation-reliability/llm-judge-lifecycle',
+    );
+    const context = getArticleByRoute(
+      '07-paper-insights',
+      'memory-context/context-as-environment',
+    );
+    const skills = getArticleByRoute(
+      '07-paper-insights',
+      'agent-systems/demystifying-agent-skills',
+    );
+
+    expect(module?.articles).toHaveLength(15);
+    expect(judge?.content).toContain('对 AI 产品经理的五层启发');
+    expect(judge?.content).toContain('推荐来源');
+    expect(context?.content).toContain('面试参考答案');
+    expect(skills?.content).toContain('一句话记忆');
   });
 
   it('索引中不再出现旧十类能力地图', () => {
