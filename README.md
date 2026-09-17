@@ -21,7 +21,9 @@
 
 ### AI 实战教学区
 
-正在持续开发。未来会提供办公提效、网站制作与常用 Prompt 的可复现教程。
+已提供六个模块入口：高频精华prompt库、AI图片创作、AI视频创作、AI办公提效、AI网站与产品开发、AI游戏与互动创作。部分模块已有首批内容，其余内容可通过后台持续补充。
+
+教学区入口为 `/practice`；内容整理约定见 `src/content/practice/README.md`。
 
 ## 本地打开网站
 
@@ -35,6 +37,16 @@ npm start
 浏览器打开：<http://127.0.0.1:5173/>
 
 ## 日常更新内容
+
+### 实战教学区内容后台
+
+使用 Node.js 22。两个终端分别运行 `npm start -- --port 5174` 和 `npm run admin:local`，打开 <http://127.0.0.1:5174/admin/?local=1>。
+
+支持六个模块表单录入、Markdown 导入、图片附件、预览和展示开关；原有内容在“已有内容维护”集合管理。录入指南在 `/admin/guide.html`，标准模板在 `/admin/内容模板.md`。
+
+本地模式的“发布”仅保存本机文件，不更新线上网站。新增内容在 `src/content/managed/`，上传资源在 `public/uploads/`。关闭展示开关并保存后，列表和详情页均不展示该内容。
+
+Netlify 已关联 GitHub 仓库，生产分支为 `main`。本次后台代码上线后，还需在 Netlify 配置 GitHub OAuth，才能从 `/admin/` 登录并把内容提交到仓库；不要把 OAuth 密钥写入仓库。
 
 - 文章与学习资料位于 `src/content/aipm/`。
 - 面试经验资料位于 `src/data/interview-sources/`。

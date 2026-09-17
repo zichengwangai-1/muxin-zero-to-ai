@@ -45,8 +45,8 @@ describe('首页', () => {
     expect(screen.getAllByText('论文解读').length).toBeGreaterThan(0);
     expect(screen.getByText('模型动态')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AI实战教学区' })).toBeInTheDocument();
-    expect(screen.getByText('努力开发中')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /AI实战教学区/ })).not.toBeInTheDocument();
+    expect(screen.getByText('进入AI实战教学区')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /进入AI实战教学区/ })).toHaveAttribute('href', '/practice');
 
     expect(screen.getByRole('heading', { name: '省下80%的资料搜集时间' })).toBeInTheDocument();
     expect(screen.getByText('8个专业目录')).toBeInTheDocument();

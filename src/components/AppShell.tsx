@@ -45,6 +45,7 @@ export function AppShell() {
           <p>从真实任务开始，少一点术语，多一个能用的结果。</p>
           <div className="footer-links">
             <NavLink to="/aipm">AI产品求职区</NavLink>
+            <NavLink to="/practice">AI实战教学区</NavLink>
             <NavLink to="/projects">项目实战</NavLink>
           </div>
         </div>

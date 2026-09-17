@@ -311,8 +311,8 @@ button { color: inherit; }
 .learning-module:hover .learning-module__arrow { transform: translate(3px,-3px); }
 .learning-module__body { position: relative; z-index: 1; margin-top: 38px; }
 .learning-module h3 { margin: 0; font-family: ui-rounded, sans-serif; font-size: clamp(28px, 3vw, 38px); letter-spacing: -.05em; }
-.learning-module__body > p { max-width: 430px; margin: 13px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
-.learning-module--violet .learning-module__body > p { color: rgba(255,255,255,.56); }
+.learning-module__body > p { max-width: 430px; margin: 13px 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+.learning-module--violet .learning-module__body > p { color: rgba(255,255,255,.74); }
 .learning-module ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; padding: 0; list-style: none; }
 .learning-module li { padding: 8px 11px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,.72); color: var(--ink-soft); font-size: 11px; font-weight: 630; }
 .learning-module--violet li { border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.07); color: rgba(255,255,255,.68); }
@@ -1094,6 +1094,75 @@ button { color: inherit; }
 .aipm-module-section__heading span { color: var(--blue); font-size: 12px; font-weight: 720; }
 .aipm-module-section__heading h2 { margin: 7px 0 0; font-family: ui-rounded, sans-serif; font-size: 32px; letter-spacing: -.045em; }
 .aipm-module-section__heading > p { max-width: 340px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; text-align: right; }
+.practice-catalog__content { padding-bottom: 112px; }
+.tutorial-reading { overflow-wrap: anywhere; }
+.tutorial-reading .aipm-reading__header > p { color: var(--muted); line-height: 1.8; }
+.tutorial-meta { display: flex; flex-wrap: wrap; gap: 12px 22px; color: var(--muted); font-size: 13px; }
+.tutorial-nav { display: flex; flex-wrap: wrap; gap: 12px 22px; padding: 26px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.tutorial-nav a, .tutorial-source a { color: var(--blue); text-decoration: underline; text-underline-offset: 4px; }
+.tutorial-section { margin-top: 36px; scroll-margin-top: 110px; }
+.tutorial-section h2 { font-size: clamp(22px, 4vw, 28px); margin: 0 0 20px; }
+.tutorial-section p, .tutorial-section li { font-size: 15px; line-height: 1.9; color: var(--ink-soft); }
+.tutorial-section ul { padding-left: 24px; }
+.tutorial-section li { margin-bottom: 12px; }
+.tutorial-steps { padding: 0; list-style: none; }
+.tutorial-steps li { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.tutorial-steps li > span { color: var(--blue); font-size: 13px; font-weight: 700; }
+.tutorial-steps p { margin: 0; }
+.tutorial-note { color: var(--muted); font-size: 14px; line-height: 1.8; margin: 0 0 24px; }
+.tutorial-source { padding: 26px; border: 1px solid var(--line); border-radius: 20px; }
+.tutorial-source__links { display: flex; flex-wrap: wrap; gap: 18px; font-size: 14px; }
+.tutorial-source__links a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+@media (max-width: 600px) { .tutorial-steps li { padding: 16px; gap: 10px; grid-template-columns: 26px minmax(0, 1fr); } .tutorial-source { padding: 20px; } }
+.practice-catalog .aipm-catalog__title > div { min-width: 0; }
+.practice-catalog .aipm-catalog__title h1 { overflow-wrap: anywhere; }
+.practice-empty { padding: 48px 24px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface); text-align: center; }
+.practice-empty > svg { color: var(--blue); }
+.practice-empty h2 { margin: 20px 0 12px; font-size: clamp(22px, 4vw, 28px); }
+.practice-empty p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.practice-empty .aipm-back-link { margin-top: 16px; }
+
+.prompt-library { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 32px; padding-bottom: 96px; align-items: start; }
+.prompt-nav { position: sticky; top: 100px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+.prompt-nav > p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+.prompt-nav a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 8px; border-radius: 10px; font-size: 14px; }
+.prompt-nav a:hover { background: rgba(10,132,255,.08); color: var(--blue); }
+.prompt-nav a span { color: var(--muted); font-size: 12px; }
+.prompt-library__content { min-width: 0; }
+.prompt-intro { padding: 20px 24px; background: rgba(10,132,255,.06); border-radius: 16px; color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+.prompt-category, .prompt-card { scroll-margin-top: 110px; }
+.prompt-category { margin-top: 36px; }
+.prompt-category > h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 18px; font-size: 24px; }
+.prompt-category > h2 span { color: var(--muted); font-size: 12px; font-weight: 500; }
+.prompt-card { margin-bottom: 18px; padding: 28px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface); overflow-wrap: anywhere; }
+.prompt-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.prompt-card h3 { margin: 0; font-size: 20px; line-height: 1.5; }
+.prompt-card > p, .prompt-card__tips p { color: var(--ink-soft); font-size: 14px; line-height: 1.85; }
+.prompt-copy { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 10px 14px; border: 0; border-radius: 12px; background: var(--ink); color: white; cursor: pointer; font-size: 13px; }
+.prompt-copy:hover { background: var(--blue); }
+.prompt-card__tips { padding: 14px 18px; border-radius: 12px; background: rgba(10,132,255,.045); }
+.prompt-card__tips strong { color: var(--blue); font-size: 12px; }
+.prompt-card__tips p { margin: 6px 0 0; }
+.prompt-card details { margin-top: 20px; }
+.prompt-card summary { cursor: pointer; font-size: 14px; color: var(--ink-soft); padding: 8px 0; }
+.prompt-code { margin-top: 14px; border-radius: 12px; background: var(--canvas); overflow: hidden; }
+.prompt-code__toolbar { display: flex; justify-content: flex-end; padding: 14px 20px 0; }
+.prompt-card pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 560px; overflow-y: auto; padding: 20px; font-family: inherit; font-size: 14px; line-height: 1.9; }
+.prompt-code .prompt-feedback { margin: 0; padding: 0 20px 16px; }
+.prompt-feedback { display: block; margin-top: 10px; color: var(--blue); font-size: 12px; line-height: 1.6; }
+.prompt-feedback:empty { display: none; }
+.prompt-source { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.prompt-source a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) {
+  .prompt-library { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .prompt-nav { position: static; display: flex; flex-wrap: wrap; gap: 6px; padding: 14px; }
+  .prompt-nav > p { width: 100%; margin-bottom: 8px; }
+  .prompt-nav a { background: var(--canvas); padding: 10px; font-size: 12px; }
+  .prompt-card { padding: 20px; }
+  .prompt-card header { flex-wrap: wrap; gap: 12px; }
+  .prompt-card h3 { font-size: 19px; }
+  .prompt-card pre { padding: 14px; }
+}
 .aipm-module-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .aipm-module-card {
   --module-accent: var(--blue);

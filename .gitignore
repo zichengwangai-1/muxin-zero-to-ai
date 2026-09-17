@@ -14,3 +14,5 @@ research/last30days/*.db
 
 # Local Netlify folder
 .netlify
+public/admin/runtime.js
+public/admin/legacy-options.json

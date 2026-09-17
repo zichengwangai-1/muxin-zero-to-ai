@@ -14,12 +14,12 @@ const learningModules = [
   },
   {
     title: 'AI实战教学区',
-    description: '',
-    items: [],
-    href: null,
+    description: '从实用Prompt到创作与开发，围绕真实任务学习AI的使用方法。',
+    items: ['精选Prompt', '图片与视频', '办公提效', '产品与游戏开发'],
+    href: '/practice',
     icon: Rocket,
     tone: 'blue',
-    action: '努力开发中',
+    action: '进入AI实战教学区',
   },
 ] as const;
 
@@ -118,7 +118,7 @@ export function HomePage() {
                 </div>
               </>
             );
-            return module.href ? (
+            return (
               <Link
                 className={`learning-module learning-module--${module.tone}`}
                 data-testid="learning-module"
@@ -127,14 +127,6 @@ export function HomePage() {
               >
                 {content}
               </Link>
-            ) : (
-              <article
-                className={`learning-module learning-module--${module.tone} learning-module--coming-soon`}
-                data-testid="learning-module"
-                key={module.title}
-              >
-                {content}
-              </article>
             );
           })}
         </div>

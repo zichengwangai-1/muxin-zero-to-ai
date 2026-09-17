@@ -1,0 +1,39 @@
+{
+  "id": "lovable-wordpress",
+  "module": "development",
+  "title": "把 Lovable 页面迁移到 WordPress",
+  "summary": "把自己的展示页重建成可逐块编辑的 WordPress 页面，并检查桌面与手机效果。",
+  "level": "进阶",
+  "tools": [
+    "Lovable",
+    "WordPress",
+    "Beaver Builder AI"
+  ],
+  "date": "2026-09-14",
+  "author": "Anthony Tran · Beaver Builder",
+  "source": "https://www.wpbeaverbuilder.com/convert-lovable-to-wordpress/",
+  "result": "一个保留原页面主要布局、文字和图片的 WordPress 草稿页，区块可独立编辑。",
+  "prepare": [
+    "准备自己拥有的 Lovable 展示页及公开 URL。",
+    "准备 WordPress 测试站，以及原文要求的 Beaver Builder、AI、Themer、MCP Adapter 和主题；插件可能需要付费许可。",
+    "按原教程配置 HTTPS、固定链接与 MCP 连接，确认 AI 能访问测试站。"
+  ],
+  "steps": [
+    "保存原页面桌面和手机截图，作为迁移前对照。",
+    "使用原文 Method 2 的 MCP 路线，先完成连接并确认指向测试站。",
+    "替换 Prompt 中的[源页面URL]，发送给已连接的 AI。",
+    "打开草稿页，检查文字、图片和按钮可分别编辑。",
+    "对照同宽度截图检查布局；如有重复页眉页脚，按原文检查页面模板。",
+    "检查完成后在 WordPress 发布，再打开发布地址复核。"
+  ],
+  "checks": [
+    "草稿可以访问，文字与图片可独立编辑。",
+    "无重复页眉页脚，手机无横向溢出。",
+    "链接可用，数据库或登录功能的迁移范围已明确。"
+  ],
+  "limits": "迁移范围是展示页设计，不代表数据库、登录和支付会自动迁移。中文 Prompt 为本站改编，尚未实测。",
+  "preview": "原教程包含全过程视频，可在“Check the Pixel-Perfect Result”小节查看对比说明。本站未验证此 Prompt 的像素一致性。",
+  "prompt": "将我的展示页[源页面URL]重建为已连接WordPress站上的独立草稿页。\n使用Beaver Builder AI MCP，保持文字、图片、按钮和区块能够分别编辑。\n先读取原页面并列出区块；保留文案、层级、颜色、图片比例和交互意图。\n使用我拥有的原素材。现有全站页眉页脚不要重复生成。\n只迁移这一个展示页；列出源站中的登录、数据库或支付等需要另行实现的功能。\n分别在桌面和手机宽度对比两个页面，修复溢出、重复导航、间距和失效链接。\n给出WordPress草稿链接、差异清单和编辑方法；不能访问源页面时先报告问题。",
+  "promptOrigin": "本站中文改编",
+  "testedAt": null
+}

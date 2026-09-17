@@ -1,0 +1,37 @@
+{
+  "id": "star-breaker",
+  "module": "games",
+  "title": "用 Claude 制作打砖块小游戏",
+  "summary": "从一个完整 Prompt 开始，完成移动、碰撞、计分、胜负与重开。",
+  "level": "入门",
+  "tools": [
+    "Claude"
+  ],
+  "date": "2026-08-14",
+  "author": "Lance Ulanoff · TechRadar",
+  "source": "https://www.techradar.com/ai-platforms-assistants/a-year-ago-it-took-claude-ai-and-me-hours-to-build-asteroids-we-just-built-a-breakout-clone-in-five-minutes-and-you-can-play-it",
+  "result": "一个可用键盘、鼠标或触屏控制挡板的两关游戏，有三条生命、分数与胜负结算。",
+  "prepare": [
+    "准备可生成网页作品的 Claude 账号并打开新对话。",
+    "此版本用 Canvas 绘制几何图形，无需外部图片与音频。"
+  ],
+  "steps": [
+    "发送下方 Prompt，等待生成可运行作品并打开预览。",
+    "开始后测试方向键、鼠标、发球、碰墙与击中星块。",
+    "主动漏球三次，确认失败后游戏停止并可重开。",
+    "清空第一关进入第二关，检查耐久与通关结算。",
+    "在手机或触屏预览测试拖动，检查网页不会随手势滚动。",
+    "连续重开三次，确认速度与计分正常，然后使用作品分享功能。"
+  ],
+  "checks": [
+    "命中才计分，漏球只扣一次生命。",
+    "暂停时球停止，失败后不继续更新。",
+    "第二关可通关，重开恢复初始状态。"
+  ],
+  "limits": "原作者公开了 Gearbreaker 的需求 Prompt。本站改为原创“星光清除器”，玩法参数有调整，尚未实测。原作者成品不是下方 Prompt 的输出。",
+  "preview": "原教程“Breaking out”小节含 Gearbreaker 运行截图与试玩链接；本轮尚未验证试玩入口。",
+  "demo": "https://claude.ai/public/artifacts/a0b3707e-3457-4dab-b240-4b4b2dc72a18",
+  "prompt": "生成可直接游玩的中文网页小游戏“星光清除器”，使用HTML Canvas绘制原创几何图形。\n底部挡板用左右键或鼠标移动，手机用手指拖动；空格或开始按钮发球。\n顶部排列4行星块，球碰到星块加10分并反弹；碰墙和挡板也反弹。\n每局3条生命，球落到底部扣1条；生命为0进入失败画面，停止物理更新。\n第一关星块一击消除，第二关需要两击并用颜色显示剩余耐久。\n清空第二关显示胜利。加入开始、暂停、继续和重开按钮，显示分数、关卡与生命。\n深蓝背景、明亮星块、规则文字清晰；不要依赖外部图片或音频。\n交付可运行作品和文件。检查球不会高速穿过挡板、重开不会重复启动计时循环、\n暂停时球不移动、手机拖动不会滚动整个页面。无法实际测试的项目请列明。",
+  "promptOrigin": "本站中文改编",
+  "testedAt": null
+}

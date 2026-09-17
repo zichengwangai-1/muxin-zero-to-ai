@@ -9,12 +9,18 @@ import { HomePage } from './pages/HomePage';
 import { LearnPage } from './pages/LearnPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { PracticeHubPage } from './pages/PracticeHubPage';
+import { PracticeModulePage } from './pages/PracticeModulePage';
+import { PracticeTutorialPage } from './pages/PracticeTutorialPage';
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<HomePage />} />
+        <Route path="practice" element={<PracticeHubPage />} />
+        <Route path="practice/:moduleId" element={<PracticeModulePage />} />
+        <Route path="practice/:moduleId/:tutorialId" element={<PracticeTutorialPage />} />
         <Route path="aipm" element={<AipmInterviewPage />} />
         <Route path="aipm/:moduleId" element={<AipmModulePage />} />
         <Route path="aipm/04-interview/company-experiences" element={<CompanyInterviewLibraryPage />} />
