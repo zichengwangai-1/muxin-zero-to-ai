@@ -44,7 +44,7 @@ export function createConfig({ branch, local = false, legacyOptions = [] }) {
     { name: 'visibility', label: '已有资料下架管理', file: 'src/content/managed/settings.json', fields: [field('hiddenLegacyIds', '暂不展示的条目（取消选择可恢复）', 'select', { multiple: true, options: legacyOptions })] },
   ] });
   return {
-    load_config_file: false, locale: 'zh_Hans', backend: { name: 'github', repo: 'zichengwangai-1/muxin-zero-to-ai', branch, squash_merges: true },
+    load_config_file: false, locale: 'zh_Hans', backend: { name: 'github', repo: 'zichengwangai-1/muxin-zero-to-ai', branch, auth_scope: 'public_repo', squash_merges: true },
     site_url: 'https://muxin-zero-to-ai.netlify.app', display_url: '/practice', site_domain: 'muxin-zero-to-ai.netlify.app',
     logo_url: '/admin/logo.svg', publish_mode: 'editorial_workflow', media_folder: 'public/uploads', public_folder: '/uploads',
     ...(local ? { local_backend: { url: 'http://127.0.0.1:8081/api/v1' } } : {}), collections,
